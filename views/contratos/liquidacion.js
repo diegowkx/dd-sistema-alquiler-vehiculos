@@ -27,6 +27,26 @@ $(document).ready(function () {
     const btnGuardar = document.getElementById('btnGuardarLiquidacion');
     const btnFirmar = document.getElementById('btnFirmarLiquidacion');
     const btnPdf = document.getElementById('btnPdfLiquidacion');
+    const contenedorFirmar = document.getElementById('contenedorFirmarLiquidacion');
+
+    if (btnPdf && btnFirmar) {
+    btnPdf.addEventListener('click', function () {
+        btnFirmar.disabled = false;
+    });
+
+    if (contenedorFirmar) {
+    contenedorFirmar.addEventListener('click', function () {
+        if (btnFirmar.disabled) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Revise el PDF primero',
+                text: 'Debe previsualizar el PDF de la liquidación antes de poder firmarla.',
+                confirmButtonText: 'Entendido'
+            });
+        }
+    });
+}
+}
 
     let contratoActual = null;
     let liquidacionFirmadaActual = false;
@@ -97,11 +117,16 @@ $(document).ready(function () {
     }
 
     async function recalcularEnVivo() {
-        if (!contratoActual || !inputFechaReal.value || !inputKmLlegada.value) return;
+        if (!contratoActual || !inputFechaReal.value) return;
 
-        const huboRetraso = new Date(inputFechaReal.value) > new Date(fechaInputValue(contratoActual.fecha_hora_devolucion_estimada));
+        const huboRetraso = new Date(inputFechaReal.value) >
+            new Date(fechaInputValue(contratoActual.fecha_hora_devolucion_estimada));
+
         wrapResponsable.style.display = huboRetraso ? 'block' : 'none';
-        if (!huboRetraso) selectResponsable.value = 'NINGUNO';
+
+        if (!huboRetraso) {
+            selectResponsable.value = 'NINGUNO';
+        }
 
         const params = new URLSearchParams({
             contrato_id: contratoActual.id,
@@ -110,10 +135,18 @@ $(document).ready(function () {
         });
 
         try {
-            const res = await fetch('?c=liquidaciones&a=calcularEnVivo&' + params.toString());
+            const res = await fetch(
+                '?c=liquidaciones&a=calcularEnVivo&' + params.toString()
+            );
+
             const data = await res.json();
-            if (data.success) actualizarResumen(data.data);
-        } catch { /* silencioso, es solo preview */ }
+
+            if (data.success) {
+                actualizarResumen(data.data);
+            }
+        } catch {
+            // Silencioso: es solo preview
+        }
     }
 
     [inputFechaReal, selectResponsable].forEach(el => {
@@ -199,6 +232,7 @@ $(document).ready(function () {
                 btnPdf.href = '?c=liquidaciones&a=pdf&contrato_id=' + inputContratoId.value;
                 btnPdf.style.display = 'inline-block';
                 Swal.fire('Guardado', data.message, 'success');
+                liquidacionModal.hide();
             } catch (err) {
                 Swal.fire('Error', err.message || 'Error en el servidor', 'error');
             }
@@ -246,6 +280,25 @@ $(document).ready(function () {
     // ---------------------------------------------------------
     // Cargos de alquiler
     // ---------------------------------------------------------
+    async function actualizarCargosYResumen(contratoId) {
+        const res = await fetch(
+            '?c=liquidaciones&a=obtenerContexto&contrato_id=' + contratoId
+        );
+
+        const data = await res.json();
+
+        if (!data.success) {
+            throw new Error(
+                data.message || 'No se pudieron actualizar los cargos'
+            );
+        }
+
+        renderCargos(data.data.cargos);
+
+        await recalcularEnVivo();
+    }
+
+
     if (formCargo) {
         formCargo.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -272,7 +325,8 @@ $(document).ready(function () {
 
                 formCargo.reset();
                 cargoCantidad.value = 1;
-                await window.abrirModalLiquidacion(inputContratoId.value);
+
+                await actualizarCargosYResumen(inputContratoId.value);
             } catch (err) {
                 Swal.fire('Error', err.message || 'Error en el servidor', 'error');
             }
@@ -302,7 +356,7 @@ $(document).ready(function () {
             const res = await fetch('?c=liquidaciones&a=eliminarCargo', { method: 'POST', body: formData });
             const data = await res.json();
             if (!data.success) throw new Error(data.message || 'Error al eliminar el cargo');
-            await window.abrirModalLiquidacion(inputContratoId.value);
+            await actualizarCargosYResumen(inputContratoId.value);
         } catch (err) {
             Swal.fire('Error', err.message || 'Error en el servidor', 'error');
         }

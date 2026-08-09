@@ -133,9 +133,11 @@
                     <button type="button" class="btn text-white" id="btnGuardarLiquidacion" style="background-color:#d9383a; border-color:#d9383a;">
                         <i class="fas fa-save me-1"></i> Guardar
                     </button>
-                    <button type="button" class="btn text-white" id="btnFirmarLiquidacion" style="background-color:#2ab418; border-color:#2ab418;">
-                        <i class="fas fa-signature me-1"></i> Firmado
-                    </button>
+                    <div id="contenedorFirmarLiquidacion" class="d-inline-block">
+                        <button type="button" class="btn text-white" id="btnFirmarLiquidacion" disabled style="background-color:#2ab418; border-color:#2ab418;">
+                            <i class="fas fa-signature me-1"></i> Firmado
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

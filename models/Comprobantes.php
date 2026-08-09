@@ -2,158 +2,215 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/Contratos.php';
+require_once __DIR__ . '/Liquidaciones.php';
+
 class Comprobantes {
 
     private PDO $pdo;
+    private const IGV = 0.18;
 
     public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
-    public function getAll(?string $estado = null, ?string $tipoComprobante = null): array {
-        $sql = "
-            SELECT cp.id, cp.tipo_origen, cp.reserva_id, cp.estadia_id, cp.usuario_emision,
-                   cp.cliente_tipo_doc, cp.cliente_num_doc, cp.cliente_razon_social,
-                   cp.tipo_comprobante, cp.serie, cp.numero, cp.fecha_emision, cp.estado_comprobante,
-                   cp.subtotal_hospedaje, cp.total_cargos_extra, cp.descuento, cp.monto_adelanto_aplicado,
-                   cp.op_gravadas, cp.igv, cp.monto_total, cp.metodo_pago, cp.observaciones,
-                   COALESCE(e.numero_habitacion, r.numero_habitacion) AS numero_habitacion
-            FROM comprobantes_pago cp
-            LEFT JOIN estadias e ON cp.estadia_id = e.id
-            LEFT JOIN reservas r ON cp.reserva_id = r.id
-        ";
-        $conds = [];
-        $params = [];
-        if ($estado !== null && $estado !== '') {
-            $conds[] = "cp.estado_comprobante = ?";
-            $params[] = $estado;
-        }
-        if ($tipoComprobante !== null && $tipoComprobante !== '') {
-            $conds[] = "cp.tipo_comprobante = ?";
-            $params[] = $tipoComprobante;
-        }
-        if ($conds) {
-            $sql .= " WHERE " . implode(' AND ', $conds);
-        }
-        $sql .= " ORDER BY cp.fecha_emision DESC, cp.id DESC";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+    /**
+     * Contratos FINALIZADOS (liquidación firmada) que todavía no tienen comprobante emitido.
+     */
+    public function getPendientes(): array {
+        $stmt = $this->pdo->query("
+            SELECT c.id, c.placa_vehiculo, c.cliente_doc, c.fecha_hora_salida,
+                   c.fecha_hora_devolucion_estimada, c.tarifa_dia_pactada,
+                   v.marca, v.modelo, v.anio,
+                   cl.razon_social AS cliente_nombre, cl.tipo_documento AS cliente_tipo_doc,
+                   l.fecha_hora_devolucion_real, l.responsable_retraso
+            FROM contratos_alquiler c
+            INNER JOIN vehiculos v ON v.placa = c.placa_vehiculo
+            INNER JOIN clientes cl ON cl.numero_documento = c.cliente_doc
+            INNER JOIN liquidaciones_contrato l ON l.contrato_id = c.id AND l.firmado = 1
+            LEFT JOIN comprobantes_pago cp ON cp.contrato_id = c.id
+            WHERE c.estado = 'FINALIZADO' AND cp.id IS NULL
+            ORDER BY l.updated_at DESC
+        ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getById(int $id): array|false {
+    public function getPendientesPorCliente(string $clienteDoc): array {
         $stmt = $this->pdo->prepare("
-            SELECT cp.*, COALESCE(e.numero_habitacion, r.numero_habitacion) AS numero_habitacion,
-                   e.fecha_hora_checkin, e.fecha_hora_checkout, e.precio_noche_pactado
-            FROM comprobantes_pago cp
-            LEFT JOIN estadias e ON cp.estadia_id = e.id
-            LEFT JOIN reservas r ON cp.reserva_id = r.id
-            WHERE cp.id = ?
+            SELECT c.id, c.placa_vehiculo, c.cliente_doc, c.fecha_hora_salida,
+                   c.fecha_hora_devolucion_estimada, c.tarifa_dia_pactada,
+                   v.marca, v.modelo, v.anio,
+                   cl.razon_social AS cliente_nombre, cl.tipo_documento AS cliente_tipo_doc,
+                   l.fecha_hora_devolucion_real, l.responsable_retraso
+            FROM contratos_alquiler c
+            INNER JOIN vehiculos v ON v.placa = c.placa_vehiculo
+            INNER JOIN clientes cl ON cl.numero_documento = c.cliente_doc
+            INNER JOIN liquidaciones_contrato l ON l.contrato_id = c.id AND l.firmado = 1
+            LEFT JOIN comprobantes_pago cp ON cp.contrato_id = c.id
+            WHERE c.estado = 'FINALIZADO' AND cp.id IS NULL AND c.cliente_doc = ?
+            ORDER BY l.updated_at DESC
         ");
-        $stmt->execute([$id]);
+        $stmt->execute([$clienteDoc]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getContratoPendientePorId(int $contratoId): array|false {
+        $stmt = $this->pdo->prepare("
+            SELECT c.id, c.placa_vehiculo, c.cliente_doc, c.fecha_hora_salida,
+                   c.fecha_hora_devolucion_estimada, c.tarifa_dia_pactada,
+                   v.marca, v.modelo, v.anio,
+                   cl.razon_social AS cliente_nombre, cl.tipo_documento AS cliente_tipo_doc,
+                   cl.direccion AS cliente_direccion,
+                   l.fecha_hora_devolucion_real, l.responsable_retraso
+            FROM contratos_alquiler c
+            INNER JOIN vehiculos v ON v.placa = c.placa_vehiculo
+            INNER JOIN clientes cl ON cl.numero_documento = c.cliente_doc
+            INNER JOIN liquidaciones_contrato l ON l.contrato_id = c.id AND l.firmado = 1
+            LEFT JOIN comprobantes_pago cp ON cp.contrato_id = c.id
+            WHERE c.estado = 'FINALIZADO' AND cp.id IS NULL AND c.id = ?
+        ");
+        $stmt->execute([$contratoId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Reserva (bloquea con FOR UPDATE) y consume el siguiente número de una
-     * serie activa para el tipo de comprobante indicado. Debe llamarse dentro
-     * de una transacción ya abierta por el controller, junto al INSERT en
-     * comprobantes_pago, para que la numeración quede atómica.
+     * Monto que debe pagar el cliente por ese contrato (alquiler + cargos), sin descuento.
      */
-    public function obtenerYReservarNumero(string $tipoComprobante): array {
+    public function montoAPagar(array $contratoPendiente): float {
+        $liquidacionesModel = new Liquidaciones($this->pdo);
+        $calculo = $liquidacionesModel->calcularMontoLiquidacion(
+            $contratoPendiente,
+            $contratoPendiente['fecha_hora_devolucion_real'],
+            $contratoPendiente['responsable_retraso']
+        );
+        return $calculo['total_final'];
+    }
+
+    public function getComprobantes(): array {
+        $stmt = $this->pdo->query("
+            SELECT id, contrato_id, tipo_comprobante, serie, numero, fecha_emision,
+                   estado_comprobante, cliente_num_doc, cliente_razon_social,
+                   subtotal_alquiler, total_cargos_extra, descuento, op_gravadas, igv, monto_total,
+                   metodo_pago
+            FROM comprobantes_pago
+            ORDER BY fecha_emision DESC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getById(int $id): array|false {
+        $stmt = $this->pdo->prepare("SELECT * FROM comprobantes_pago WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getByContratoId(int $contratoId): array|false {
+        $stmt = $this->pdo->prepare("SELECT * FROM comprobantes_pago WHERE contrato_id = ?");
+        $stmt->execute([$contratoId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Obtiene la serie activa por defecto para un tipo de comprobante.
+     */
+    private function serieActivaPorDefecto(string $tipoComprobante): ?string {
         $stmt = $this->pdo->prepare("
-            SELECT id, serie, ultimo_numero, limite_numero
-            FROM correlativos_series
+            SELECT serie FROM correlativos_series
             WHERE tipo_comprobante = ? AND activo = 1
-            ORDER BY id ASC
-            LIMIT 1
-            FOR UPDATE
+            ORDER BY id ASC LIMIT 1
         ");
         $stmt->execute([$tipoComprobante]);
-        $fila = $stmt->fetch(PDO::FETCH_ASSOC);
+        $serie = $stmt->fetchColumn();
+        return $serie !== false ? $serie : null;
+    }
 
-        if (!$fila) {
-            throw new RuntimeException("No hay una serie activa configurada para {$tipoComprobante}.");
+    /**
+     * Genera el comprobante de forma completa y segura ante concurrencia:
+     * bloquea la fila de correlativos_series (FOR UPDATE), obtiene el siguiente número,
+     * calcula el desglose de IGV y registra el comprobante en una sola transacción.
+     */
+    public function generar(array $data): int {
+        $this->pdo->beginTransaction();
+        try {
+            $tipoComprobante = $data['tipo_comprobante'];
+            $serie = $data['serie'] ?? $this->serieActivaPorDefecto($tipoComprobante);
+
+            if (!$serie) {
+                throw new RuntimeException("No hay una serie activa configurada para {$tipoComprobante}.");
+            }
+
+            $stmtSerie = $this->pdo->prepare("
+                SELECT id, ultimo_numero, limite_numero FROM correlativos_series
+                WHERE tipo_comprobante = :tipo AND serie = :serie AND activo = 1
+                FOR UPDATE
+            ");
+            $stmtSerie->execute([':tipo' => $tipoComprobante, ':serie' => $serie]);
+            $serieRow = $stmtSerie->fetch(PDO::FETCH_ASSOC);
+
+            if (!$serieRow) {
+                throw new RuntimeException('La serie indicada no existe o no está activa.');
+            }
+
+            $siguienteNumero = (int)$serieRow['ultimo_numero'] + 1;
+            if ($siguienteNumero > (int)$serieRow['limite_numero']) {
+                throw new RuntimeException('Se alcanzó el límite de numeración de la serie.');
+            }
+
+            $stmtUpdate = $this->pdo->prepare("UPDATE correlativos_series SET ultimo_numero = :n WHERE id = :id");
+            $stmtUpdate->execute([':n' => $siguienteNumero, ':id' => $serieRow['id']]);
+
+            $numeroFormateado = str_pad((string)$siguienteNumero, 8, '0', STR_PAD_LEFT);
+
+            // Desglose de IGV (el monto final ya incluye IGV, estilo boleta/factura de consumo)
+            $montoFinal = round($data['monto_a_pagar'] - $data['descuento'], 2);
+            if ($montoFinal <= 0) {
+                throw new RuntimeException('El monto a pagar después del descuento debe ser mayor a 0.');
+            }
+            $opGravadas = round($montoFinal / (1 + self::IGV), 2);
+            $igv = round($montoFinal - $opGravadas, 2);
+
+            $stmt = $this->pdo->prepare("
+                INSERT INTO comprobantes_pago (
+                    contrato_id, usuario_emision,
+                    cliente_tipo_doc, cliente_num_doc, cliente_razon_social, cliente_direccion,
+                    tipo_comprobante, serie, numero,
+                    subtotal_alquiler, total_cargos_extra, descuento,
+                    op_gravadas, igv, monto_total, metodo_pago, observaciones
+                ) VALUES (
+                    :contrato_id, :usuario_emision,
+                    :cliente_tipo_doc, :cliente_num_doc, :cliente_razon_social, :cliente_direccion,
+                    :tipo_comprobante, :serie, :numero,
+                    :subtotal_alquiler, :total_cargos_extra, :descuento,
+                    :op_gravadas, :igv, :monto_total, :metodo_pago, :observaciones
+                )
+            ");
+
+            $stmt->execute([
+                ':contrato_id'          => $data['contrato_id'],
+                ':usuario_emision'       => $data['usuario_emision'],
+                ':cliente_tipo_doc'      => $data['cliente_tipo_doc'],
+                ':cliente_num_doc'       => $data['cliente_num_doc'],
+                ':cliente_razon_social'  => $data['cliente_razon_social'],
+                ':cliente_direccion'     => $data['cliente_direccion'] ?: null,
+                ':tipo_comprobante'      => $tipoComprobante,
+                ':serie'                 => $serie,
+                ':numero'                => $numeroFormateado,
+                ':subtotal_alquiler'     => $data['subtotal_alquiler'],
+                ':total_cargos_extra'    => $data['total_cargos_extra'],
+                ':descuento'             => $data['descuento'],
+                ':op_gravadas'           => $opGravadas,
+                ':igv'                   => $igv,
+                ':monto_total'           => $montoFinal,
+                ':metodo_pago'           => $data['metodo_pago'],
+                ':observaciones'         => $data['observaciones'] ?: null,
+            ]);
+
+            $id = (int)$this->pdo->lastInsertId();
+            $this->pdo->commit();
+            return $id;
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
         }
-
-        $nuevoNumero = (int)$fila['ultimo_numero'] + 1;
-        if ($nuevoNumero > (int)$fila['limite_numero']) {
-            throw new RuntimeException("La serie {$fila['serie']} alcanzó su límite de numeración.");
-        }
-
-        $upd = $this->pdo->prepare("UPDATE correlativos_series SET ultimo_numero = ? WHERE id = ?");
-        $upd->execute([$nuevoNumero, $fila['id']]);
-
-        return [
-            'serie'  => $fila['serie'],
-            'numero' => str_pad((string)$nuevoNumero, 8, '0', STR_PAD_LEFT),
-        ];
-    }
-
-    public function existeComprobanteParaEstadia(int $estadiaId): bool {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM comprobantes_pago WHERE estadia_id = ?");
-        $stmt->execute([$estadiaId]);
-        return (int)$stmt->fetchColumn() > 0;
-    }
-
-    public function existeAdelantoFacturadoParaReserva(int $reservaId): bool {
-        $stmt = $this->pdo->prepare("
-            SELECT COUNT(*) FROM comprobantes_pago
-            WHERE reserva_id = ? AND tipo_origen = 'RESERVA' AND estado_comprobante = 'EMITIDO'
-        ");
-        $stmt->execute([$reservaId]);
-        return (int)$stmt->fetchColumn() > 0;
-    }
-
-    public function create(array $data): int|false {
-        $stmt = $this->pdo->prepare("
-            INSERT INTO comprobantes_pago (
-                tipo_origen, reserva_id, estadia_id, usuario_emision,
-                cliente_tipo_doc, cliente_num_doc, cliente_razon_social, cliente_direccion,
-                tipo_comprobante, serie, numero,
-                subtotal_hospedaje, total_cargos_extra, descuento, monto_adelanto_aplicado,
-                op_gravadas, igv, monto_total,
-                metodo_pago, observaciones
-            ) VALUES (
-                :tipo_origen, :reserva_id, :estadia_id, :usuario_emision,
-                :cliente_tipo_doc, :cliente_num_doc, :cliente_razon_social, :cliente_direccion,
-                :tipo_comprobante, :serie, :numero,
-                :subtotal_hospedaje, :total_cargos_extra, :descuento, :monto_adelanto_aplicado,
-                :op_gravadas, :igv, :monto_total,
-                :metodo_pago, :observaciones
-            )
-        ");
-        $ok = $stmt->execute([
-            ':tipo_origen'             => $data['tipo_origen'],
-            ':reserva_id'              => $data['reserva_id'] ?: null,
-            ':estadia_id'              => $data['estadia_id'] ?: null,
-            ':usuario_emision'         => $data['usuario_emision'],
-            ':cliente_tipo_doc'        => $data['cliente_tipo_doc'],
-            ':cliente_num_doc'         => $data['cliente_num_doc'],
-            ':cliente_razon_social'    => $data['cliente_razon_social'],
-            ':cliente_direccion'       => $data['cliente_direccion'] ?: null,
-            ':tipo_comprobante'        => $data['tipo_comprobante'],
-            ':serie'                   => $data['serie'],
-            ':numero'                  => $data['numero'],
-            ':subtotal_hospedaje'      => $data['subtotal_hospedaje'],
-            ':total_cargos_extra'      => $data['total_cargos_extra'],
-            ':descuento'               => $data['descuento'],
-            ':monto_adelanto_aplicado' => $data['monto_adelanto_aplicado'],
-            ':op_gravadas'             => $data['op_gravadas'],
-            ':igv'                     => $data['igv'],
-            ':monto_total'             => $data['monto_total'],
-            ':metodo_pago'             => $data['metodo_pago'],
-            ':observaciones'           => $data['observaciones'] !== '' ? $data['observaciones'] : null,
-        ]);
-        return $ok ? (int)$this->pdo->lastInsertId() : false;
-    }
-
-    public function anular(int $id): bool {
-        $stmt = $this->pdo->prepare("
-            UPDATE comprobantes_pago SET estado_comprobante = 'ANULADO'
-            WHERE id = ? AND estado_comprobante = 'EMITIDO'
-        ");
-        return $stmt->execute([$id]);
     }
 }

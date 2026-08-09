@@ -187,8 +187,8 @@
 
             <!-- 8. FACTURACIÓN -->
             <?php if (tienePermisoSidebar('FACTURACION')): ?>
-                <li class="<?= ($currentController === 'facturacion') ? 'mm-active' : '' ?>">
-                    <a class="ai-icon" href="?c=facturacion" aria-expanded="false">
+                <li class="<?= ($currentController === 'comprobantes') ? 'mm-active' : '' ?>">
+                    <a class="ai-icon" href="?c=comprobantes" aria-expanded="false">
                         <i class="fas fa-file-invoice-dollar"></i>
                         <span class="nav-text">Facturación</span>
                     </a>

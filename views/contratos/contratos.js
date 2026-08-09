@@ -270,6 +270,25 @@ $(document).ready(function () {
     // ---------------------------------------------------------
     // DataTable
     // ---------------------------------------------------------
+    // Replica en el cliente la misma lógica de prorrateo de Contratos::calcularDiasYMonto()
+    // para pintar el monto estimado en la tabla sin hacer una petición por cada fila.
+    function calcularMontoEstimadoCliente(fechaSalida, fechaDevolucion, tarifa) {
+        const ini = new Date(fechaSalida.replace(' ', 'T'));
+        const fin = new Date(fechaDevolucion.replace(' ', 'T'));
+        const horas = (fin - ini) / 3600000;
+        if (horas <= 0) return 0;
+
+        let diasCompletos, fraccionDia;
+        if (horas <= 24) {
+            diasCompletos = 1;
+            fraccionDia = 0;
+        } else {
+            diasCompletos = Math.floor(horas / 24);
+            fraccionDia = (horas - diasCompletos * 24) / 24;
+        }
+        return (diasCompletos * tarifa) + (fraccionDia * tarifa);
+    }
+
     function badgeFirmado(firmado) {
         return firmado == 1
             ? '<span class="badge bg-success">FIRMADO</span>'
@@ -306,10 +325,7 @@ $(document).ready(function () {
             },
             {
                 data: null,
-                render: d => {
-                    // Estimado con la tarifa pactada usando la misma lógica del backend (fallback simple en el cliente)
-                    return `<span class="text-muted small">ver detalle</span>`;
-                }
+                render: d => money(calcularMontoEstimadoCliente(d.fecha_hora_salida, d.fecha_hora_devolucion_estimada, parseFloat(d.tarifa_dia_pactada)))
             },
             {
                 data: 'firmado',
@@ -350,14 +366,27 @@ $(document).ready(function () {
                             </div>`;
                     }
 
-                    // FINALIZADO o CANCELADO: solo consulta de PDF
+                    // FINALIZADO: contrato y su respectiva liquidación
+                    if (row.estado === 'FINALIZADO') {
+                        return `
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <a class="btn btn-info text-white rounded-circle" href="?c=contratos&a=pdf&id=${row.id}" target="_blank" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;background-color:#0b667c;border-color:#0b667c;" title="Ver Contrato PDF">
+                                    <i class="fas fa-file-pdf fs-6"></i>
+                                </a>
+                                <a class="btn btn-secondary text-white rounded-circle" href="?c=liquidaciones&a=pdf&contrato_id=${row.id}" target="_blank" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;background-color:#475569;border-color:#475569;" title="Ver Liquidación PDF">
+                                    <i class="fas fa-file-invoice-dollar fs-6"></i>
+                                </a>
+                            </div>`;
+                    }
+
+                    // CANCELADO: solo consulta de PDF de contrato base
                     return `
                         <div class="d-flex align-items-center justify-content-center gap-2">
                             <a class="btn btn-info text-white rounded-circle" href="?c=contratos&a=pdf&id=${row.id}" target="_blank" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;background-color:#0b667c;border-color:#0b667c;" title="Ver PDF">
                                 <i class="fas fa-file-pdf fs-6"></i>
                             </a>
                         </div>`;
-                }
+                    }
             }
         ],
         language: {
@@ -375,6 +404,10 @@ $(document).ready(function () {
             infoFiltered: "(filtrado de _MAX_ registros totales)"
         }
     });
+
+    window.recargarTablaContratos = function () {
+        tabla.ajax.reload(null, false);
+    };
 
     document.querySelectorAll('#pills-tab-contratos .tab-estado').forEach(btn => {
         btn.addEventListener('click', function () {
@@ -507,9 +540,8 @@ $(document).ready(function () {
         }
 
         const btnLiquidar = e.target.closest('.btn-liquidar-contrato');
-        if (btnLiquidar) {
-            // El modal de Liquidación de contrato / Cargos de alquiler se implementa en el siguiente paso.
-            Swal.fire('Próximamente', 'El modal de Liquidación se agregará en la siguiente etapa del módulo.', 'info');
+        if (btnLiquidar && window.abrirModalLiquidacion) {
+            window.abrirModalLiquidacion(btnLiquidar.getAttribute('data-id'));
         }
     });
 
