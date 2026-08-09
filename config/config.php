@@ -27,7 +27,7 @@ define('DB_CHARSET', 'utf8mb4');
 
 // Configuración de sesión segura
 if (session_status() === PHP_SESSION_NONE) {
-    session_name('HOTEL_APP_SESSION');
+    session_name('GestCarCore_APP_SESSION');
 
     $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443);
 
