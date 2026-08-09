@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/ChecksPermisos.php';
 
-class TiposHabitacionController {
+class TiposVehiculoController {
 
     use ChecksPermisos;
 
@@ -13,17 +13,17 @@ class TiposHabitacionController {
             header('Location: ' . BASE_URL . '?c=auth&a=login');
             exit;
         }
-        $this->requierePermiso('TIPOS_HABITACION');
+        $this->requierePermiso('TIPOS_VEHICULOS');
 
-        $title = "Tipos de Habitación";
-        require_once __DIR__ . '/../views/tipos_habitacion/index.php';
+        $title = "Tipos de Vehículo";
+        require_once __DIR__ . '/../views/tipos_vehiculo/index.php';
     }
 
     public function listar(PDO $pdo): void {
-        $this->requierePermisoApi('TIPOS_HABITACION');
+        $this->requierePermisoApi('TIPOS_VEHICULOS');
 
-        require_once __DIR__ . '/../models/TiposHabitacion.php';
-        $model = new TiposHabitacion($pdo);
+        require_once __DIR__ . '/../models/TiposVehiculo.php';
+        $model = new TiposVehiculo($pdo);
 
         $estado = strtoupper(trim((string)($_GET['estado'] ?? 'ACTIVO')));
         if (!in_array($estado, ['ACTIVO', 'INACTIVO'], true)) {
@@ -37,28 +37,28 @@ class TiposHabitacionController {
     }
 
     public function obtener(PDO $pdo): void {
-        $this->requierePermisoApi('TIPOS_HABITACION');
+        $this->requierePermisoApi('TIPOS_VEHICULOS');
 
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         if ($id <= 0) {
-            echo json_encode(['success' => false, 'message' => 'ID de tipo de habitación no válido']);
+            echo json_encode(['success' => false, 'message' => 'ID de tipo de vehículo no válido']);
             exit;
         }
 
-        require_once __DIR__ . '/../models/TiposHabitacion.php';
-        $model = new TiposHabitacion($pdo);
+        require_once __DIR__ . '/../models/TiposVehiculo.php';
+        $model = new TiposVehiculo($pdo);
 
         $tipo = $model->getById($id);
         if ($tipo) {
             echo json_encode(['success' => true, 'data' => $tipo]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'El tipo de habitación consultado no existe']);
+            echo json_encode(['success' => false, 'message' => 'El tipo de vehículo consultado no existe']);
         }
         exit;
     }
 
     public function guardar(PDO $pdo): void {
-        $this->requierePermisoApi('TIPOS_HABITACION');
+        $this->requierePermisoApi('TIPOS_VEHICULOS');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'message' => 'Método no permitido']);
@@ -69,15 +69,14 @@ class TiposHabitacionController {
         $esEdicion = $id > 0;
 
         $nombre = strtoupper(trim((string)($_POST['nombre'] ?? '')));
-        $precioRaw = $_POST['precio_base_noche'] ?? null;
-        $capacidadRaw = $_POST['capacidad_personas'] ?? null;
+        $precioRaw = $_POST['precio_base_dia'] ?? null;
         $descripcion = trim((string)($_POST['descripcion'] ?? ''));
 
         // --- VALIDACIONES DE ENTRADA Y REGLAS DE NEGOCIO ---
 
         // 1. Validar Nombre
         if ($nombre === '') {
-            echo json_encode(['success' => false, 'message' => 'El nombre del tipo de habitación es obligatorio.']);
+            echo json_encode(['success' => false, 'message' => 'El nombre del tipo de vehículo es obligatorio.']);
             exit;
         }
 
@@ -92,15 +91,15 @@ class TiposHabitacionController {
             exit;
         }
 
-        // 2. Validar Precio Base por Noche
+        // 2. Validar Precio Base por Día
         if ($precioRaw === null || !is_numeric($precioRaw)) {
-            echo json_encode(['success' => false, 'message' => 'El precio base por noche debe ser un número válido.']);
+            echo json_encode(['success' => false, 'message' => 'El precio base por día debe ser un número válido.']);
             exit;
         }
 
         $precio = (float)$precioRaw;
         if ($precio <= 0) {
-            echo json_encode(['success' => false, 'message' => 'El precio base por noche debe ser mayor a S/ 0.00.']);
+            echo json_encode(['success' => false, 'message' => 'El precio base por día debe ser mayor a S/ 0.00.']);
             exit;
         }
 
@@ -109,37 +108,25 @@ class TiposHabitacionController {
             exit;
         }
 
-        // 3. Validar Capacidad de Personas
-        if ($capacidadRaw === null || filter_var($capacidadRaw, FILTER_VALIDATE_INT) === false) {
-            echo json_encode(['success' => false, 'message' => 'La capacidad de personas debe ser un número entero.']);
-            exit;
-        }
-
-        $capacidad = (int)$capacidadRaw;
-        if ($capacidad < 1 || $capacidad > 50) {
-            echo json_encode(['success' => false, 'message' => 'La capacidad debe ser de al menos 1 persona y no superar las 50 personas.']);
-            exit;
-        }
-
-        // 4. Validar Descripción (Opcional)
+        // 3. Validar Descripción (Opcional)
         if ($descripcion !== '' && mb_strlen($descripcion) > 500) {
             echo json_encode(['success' => false, 'message' => 'La descripción no puede exceder los 500 caracteres.']);
             exit;
         }
 
-        require_once __DIR__ . '/../models/TiposHabitacion.php';
-        $model = new TiposHabitacion($pdo);
+        require_once __DIR__ . '/../models/TiposVehiculo.php';
+        $model = new TiposVehiculo($pdo);
 
-        // 5. Validar existencia previa si es edición
+        // 4. Validar existencia previa si es edición
         if ($esEdicion) {
             $tipoExistente = $model->getById($id);
             if (!$tipoExistente) {
-                echo json_encode(['success' => false, 'message' => 'El tipo de habitación que intenta editar no existe.']);
+                echo json_encode(['success' => false, 'message' => 'El tipo de vehículo que intenta editar no existe.']);
                 exit;
             }
         }
 
-        // 6. Validar Duplicidad de Nombre
+        // 5. Validar Duplicidad de Nombre
         if ($model->existeNombre($nombre, $esEdicion ? $id : null)) {
             echo json_encode(['success' => false, 'message' => "El tipo '{$nombre}' ya se encuentra registrado."]);
             exit;
@@ -148,15 +135,14 @@ class TiposHabitacionController {
         $data = [
             'nombre' => $nombre,
             'descripcion' => $descripcion !== '' ? $descripcion : null,
-            'precio_base_noche' => round($precio, 2),
-            'capacidad_personas' => $capacidad
+            'precio_base_dia' => round($precio, 2)
         ];
 
         // --- EJECUCIÓN DE LA OPERACIÓN ---
         try {
             $resultado = $esEdicion ? $model->update($id, $data) : $model->create($data);
-            $mensajeOk = $esEdicion ? 'Tipo de habitación actualizado correctamente' : 'Tipo de habitación creado correctamente';
-            $mensajeError = $esEdicion ? 'No se pudo actualizar el tipo de habitación' : 'No se pudo crear el tipo de habitación';
+            $mensajeOk = $esEdicion ? 'Tipo de vehículo actualizado correctamente' : 'Tipo de vehículo creado correctamente';
+            $mensajeError = $esEdicion ? 'No se pudo actualizar el tipo de vehículo' : 'No se pudo crear el tipo de vehículo';
 
             echo json_encode([
                 'success' => $resultado,
@@ -166,7 +152,7 @@ class TiposHabitacionController {
             if ($e instanceof PDOException && $e->getCode() === '23000') {
                 echo json_encode(['success' => false, 'message' => "El tipo '{$nombre}' ya se encuentra registrado."]);
             } else {
-                error_log('Error en TiposHabitacionController::guardar: ' . $e->getMessage());
+                error_log('Error en TiposVehiculoController::guardar: ' . $e->getMessage());
                 echo json_encode(['success' => false, 'message' => 'Error inesperado de base de datos al guardar']);
             }
         }
@@ -174,7 +160,7 @@ class TiposHabitacionController {
     }
 
     public function eliminar(PDO $pdo): void {
-        $this->requierePermisoApi('TIPOS_HABITACION');
+        $this->requierePermisoApi('TIPOS_VEHICULOS');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'message' => 'Método no permitido']);
@@ -187,27 +173,27 @@ class TiposHabitacionController {
             exit;
         }
 
-        require_once __DIR__ . '/../models/TiposHabitacion.php';
-        $model = new TiposHabitacion($pdo);
+        require_once __DIR__ . '/../models/TiposVehiculo.php';
+        $model = new TiposVehiculo($pdo);
 
-        // 1. Obtener tipo de habitación
+        // 1. Obtener tipo de vehículo
         $tipo = $model->getById($id);
         if (!$tipo) {
-            echo json_encode(['success' => false, 'message' => 'El tipo de habitación especificado no existe']);
+            echo json_encode(['success' => false, 'message' => 'El tipo de vehículo especificado no existe']);
             exit;
         }
 
         if ((int)$tipo['activo'] === 0) {
-            echo json_encode(['success' => false, 'message' => 'El tipo de habitación ya se encuentra desactivado']);
+            echo json_encode(['success' => false, 'message' => 'El tipo de vehículo ya se encuentra desactivado']);
             exit;
         }
 
-        // 2. VALIDACIÓN: Verificar si hay habitaciones asignadas a este tipo
-        $cantidadHabitaciones = $model->contarHabitacionesAsociadas($tipo['nombre']);
-        if ($cantidadHabitaciones > 0) {
+        // 2. VALIDACIÓN: Verificar si hay vehículos asignados a este tipo
+        $cantidadVehiculos = $model->contarVehiculosAsociados($tipo['nombre']);
+        if ($cantidadVehiculos > 0) {
             echo json_encode([
                 'success' => false,
-                'message' => "No se puede desactivar el tipo '{$tipo['nombre']}' porque tiene {$cantidadHabitaciones} habitación(es) asociada(s). Reasigne o elimine las habitaciones primero."
+                'message' => "No se puede desactivar el tipo '{$tipo['nombre']}' porque tiene {$cantidadVehiculos} vehículo(s) asociado(s). Reasigne o elimine los vehículos primero."
             ]);
             exit;
         }
@@ -216,13 +202,13 @@ class TiposHabitacionController {
         $resultado = $model->delete($id);
         echo json_encode([
             'success' => $resultado,
-            'message' => $resultado ? 'Tipo de habitación desactivado correctamente' : 'No se pudo desactivar el tipo de habitación'
+            'message' => $resultado ? 'Tipo de vehículo desactivado correctamente' : 'No se pudo desactivar el tipo de vehículo'
         ]);
         exit;
     }
 
     public function restaurar(PDO $pdo): void {
-        $this->requierePermisoApi('TIPOS_HABITACION');
+        $this->requierePermisoApi('TIPOS_VEHICULOS');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'message' => 'Método no permitido']);
@@ -235,24 +221,24 @@ class TiposHabitacionController {
             exit;
         }
 
-        require_once __DIR__ . '/../models/TiposHabitacion.php';
-        $model = new TiposHabitacion($pdo);
+        require_once __DIR__ . '/../models/TiposVehiculo.php';
+        $model = new TiposVehiculo($pdo);
 
         $tipo = $model->getById($id);
         if (!$tipo) {
-            echo json_encode(['success' => false, 'message' => 'El tipo de habitación especificado no existe']);
+            echo json_encode(['success' => false, 'message' => 'El tipo de vehículo especificado no existe']);
             exit;
         }
 
         if ((int)$tipo['activo'] === 1) {
-            echo json_encode(['success' => false, 'message' => 'El tipo de habitación ya se encuentra activo']);
+            echo json_encode(['success' => false, 'message' => 'El tipo de vehículo ya se encuentra activo']);
             exit;
         }
 
         $resultado = $model->restore($id);
         echo json_encode([
             'success' => $resultado,
-            'message' => $resultado ? 'Tipo de habitación restaurado correctamente' : 'No se pudo restaurar el tipo de habitación'
+            'message' => $resultado ? 'Tipo de vehículo restaurado correctamente' : 'No se pudo restaurar el tipo de vehículo'
         ]);
         exit;
     }

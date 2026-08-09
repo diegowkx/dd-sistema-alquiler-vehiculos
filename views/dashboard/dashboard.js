@@ -5,98 +5,7 @@ $(document).ready(function() {
     const modalIp = modalElement ? new bootstrap.Modal(modalElement) : null;
 
     // ==========================================
-    // 1. CARGA DE METRICAS EN CARDS (ESTADÍAS E INGRESOS)
-    // ==========================================
-    function cargarReporteVentas() {
-        const fechaInicio = $('#fecha_inicio').val();
-        const fechaFin = $('#fecha_fin').val();
-
-        $.ajax({
-            url: '?c=dashboard&a=reporteVentas',
-            type: 'GET',
-            data: { fecha_inicio: fechaInicio, fecha_fin: fechaFin },
-            dataType: 'json',
-            success: function(res) {
-                if (res.success) {
-                    $('#lbl_total_ventas').text(res.data.total_estadias || 0);
-                    $('#lbl_ingreso_total').text('S/ ' + parseFloat(res.data.ingreso_total || 0).toFixed(2));
-                }
-            },
-            error: function() {
-                Swal.fire('Error', 'No se pudieron obtener las métricas de estadías', 'error');
-            }
-        });
-    }
-
-    // ==========================================
-    // 2. DATATABLE: OCUPACIÓN DE HABITACIONES
-    // ==========================================
-    const tablaProductos = $('#datatable_productos').DataTable({
-        autoWidth: false,
-        serverSide: false,
-        responsive: true,
-        bDestroy: true,
-        ajax: {
-            url: '?c=dashboard&a=reporteOcupacion',
-            dataSrc: 'data'
-        },
-        columns: [
-            { 
-                data: 'numero_habitacion',
-                render: function(data) {
-                    return `<strong>Nº ${data}</strong>`;
-                }
-            },
-            { 
-                data: 'tipo_nombre',
-                render: function(data) {
-                    return `<span class="badge bg-soft-primary text-primary">${data}</span>`;
-                }
-            },
-            { 
-                data: 'piso',
-                render: function(data) {
-                    return `Piso ${data}`;
-                }
-            },
-            { 
-                data: 'estado_disponibilidad',
-                render: function(data) {
-                    let badgeClass = 'bg-success';
-                    if (data === 'OCUPADA') badgeClass = 'bg-danger';
-                    else if (data === 'MANTENIMIENTO') badgeClass = 'bg-warning text-dark';
-                    return `<span class="badge ${badgeClass}">${data}</span>`;
-                }
-            },
-            { 
-                data: 'precio_base_noche',
-                render: function(data) {
-                    return `<strong class="text-success">S/ ${parseFloat(data).toFixed(2)}</strong>`;
-                }
-            },
-            { 
-                data: 'cliente_actual',
-                render: function(data) {
-                    return data ? `<span class="fw-bold text-dark">${data}</span>` : '<span class="text-muted fst-italic">Disponible</span>';
-                }
-            }
-        ],
-        language: {
-            search: "Buscar habitación / cliente:",
-            lengthMenu: "Mostrar _MENU_ registros",
-            zeroRecords: "No hay habitaciones registradas",
-            emptyTable: "No hay datos de habitaciones disponibles",
-            loadingRecords: "Cargando...", 
-            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            paginate: {
-                next: '<i class="fa fa-angle-double-right"></i>',
-                previous: '<i class="fa fa-angle-double-left"></i>'
-            }
-        }
-    });
-
-    // ==========================================
-    // 3. DATATABLE: HISTORIAL DE IPs
+    // DATATABLE: HISTORIAL DE IPs
     // ==========================================
     const tablaIps = $('#datatable_ips').DataTable({
         autoWidth: false,
@@ -118,13 +27,13 @@ $(document).ready(function() {
             { 
                 data: 'rol_name',
                 render: function(data) {
-                    return `<span class="badge bg-soft-info text-info fw-bold">${data}</span>`;
+                    return `<span class="badge text-white fw-bold" style="background-color: #334155; padding: 6px 12px; border-radius: 6px;">${data}</span>`;
                 }
             },
             { 
                 data: 'ip_address',
                 render: function(data) {
-                    return `<code class="fw-bold fs-6">${data}</code>`;
+                    return `<code class="fw-bold fs-6 text-dark px-2 py-1 bg-light rounded" style="border: 1px solid #cbd5e1;">${data}</code>`;
                 }
             },
             { data: 'fecha_acceso' },
@@ -135,9 +44,9 @@ $(document).ready(function() {
                 render: function(row) {
                     return `
                         <button type="button" 
-                                class="btn btn-primary btn-ver-ip rounded-circle" 
+                                class="btn btn-ver-ip rounded-circle text-white shadow-sm" 
                                 data-id="${row.id}" 
-                                style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" 
+                                style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; background-color: #d9383a; border-color: #d9383a;" 
                                 title="Ver Detalle IP">
                             <i class="fas fa-eye text-white fs-6"></i>
                         </button>
@@ -156,23 +65,21 @@ $(document).ready(function() {
                 next: '<i class="fa fa-angle-double-right"></i>',
                 previous: '<i class="fa fa-angle-double-left"></i>'
             }
+        },
+        drawCallback: function() {
+            // Forzar el botón activo de la paginación a Rojo Automotriz
+            $('.dataTables_paginate .paginate_button.current, .dataTables_paginate .page-item.active .page-link').each(function() {
+                this.style.setProperty('background-color', '#d9383a', 'important');
+                this.style.setProperty('background', '#d9383a', 'important');
+                this.style.setProperty('border-color', '#d9383a', 'important');
+                this.style.setProperty('color', '#ffffff', 'important');
+            });
         }
     });
 
     // ==========================================
-    // 4. EVENTOS (FILTRAR Y MODAL)
+    // EVENTOS (MODAL VER DETALLE IP)
     // ==========================================
-
-    // Inicializar métricas al cargar la página
-    cargarReporteVentas();
-
-    // Evento Filtrar por Fecha
-    $('#btn_filtrar').on('click', function() {
-        cargarReporteVentas();
-        tablaProductos.ajax.reload();
-    });
-
-    // Ver Detalle de registro IP
     document.addEventListener('click', function(e) {
         const btnVerIp = e.target.closest('.btn-ver-ip');
         if (btnVerIp && modalIp) {

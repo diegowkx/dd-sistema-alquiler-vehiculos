@@ -21,40 +21,6 @@ class DashboardController {
         require_once __DIR__ . '/../views/dashboard/index.php';
     }
 
-    public function reporteVentas(PDO $pdo): void {
-        $this->requierePermisoApi('DASHBOARD');
-        header('Content-Type: application/json');
-
-        require_once __DIR__ . '/../models/Dashboard.php';
-        $dashboardModel = new Dashboard($pdo);
-
-        $fechaInicio = trim((string)($_GET['fecha_inicio'] ?? date('Y-m-d')));
-        $fechaFin    = trim((string)($_GET['fecha_fin'] ?? date('Y-m-d')));
-
-        $data = $dashboardModel->getIngresosYEstadiasPorFecha($fechaInicio, $fechaFin);
-
-        echo json_encode([
-            'success' => true,
-            'data'    => $data
-        ]);
-        exit;
-    }
-
-    public function reporteOcupacion(PDO $pdo): void {
-        $this->requierePermisoApi('DASHBOARD');
-        header('Content-Type: application/json');
-
-        require_once __DIR__ . '/../models/Dashboard.php';
-        $dashboardModel = new Dashboard($pdo);
-
-        $data = $dashboardModel->getOcupacionActualHabitaciones();
-
-        echo json_encode([
-            'success' => true,
-            'data'    => $data
-        ]);
-        exit;
-    }
 
     public function listarIps(PDO $pdo): void {
         $this->requierePermisoApi('DASHBOARD');

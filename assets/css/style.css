@@ -29988,4 +29988,161 @@ body.swal2-height-auto {
     font-weight: 900 !important;
 }
 
+/* Elimina cualquier réplica o espacio fantasma entre el thead y las filas */
+.dataTables_scrollBody thead tr {
+    height: 0 !important;
+    visibility: hidden !important;
+}
+
+.dataTables_scrollBody thead th,
+.dataTables_scrollBody thead td {
+    height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+}
+
+/* Aísla el contenedor de scroll de los controles superiores */
+.dataTables_wrapper .dataTables_scroll {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    clear: both;
+}
+
+/* Corrige el margen y alineación de los controles de "Mostrar" y "Buscar" */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 0.5rem;
+}
+
+/* Fuerza a la paginación a mantenerse horizontal sin saltos de línea */
+.dataTables_wrapper .dataTables_paginate {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    white-space: nowrap !important;
+    float: right !important;
+    width: auto !important;
+    gap: 4px;
+    margin-top: 0.5rem;
+}
+
+/* Evita que los botones rompan su estructura */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    padding: 0 8px !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    border: none !important;
+    background: transparent !important;
+    color: #555 !important;
+    font-size: 0.85rem !important;
+    cursor: pointer;
+}
+
+/* Estilo del botón activo (Página actual) */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background-color: #ff6b35 !important;
+    color: #fff !important;
+    font-weight: bold;
+}
+
+/* Hover en los botones */
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #f0f0f0 !important;
+    color: #000 !important;
+}
+
+/* Alineación del texto 'Mostrando X de Y registros' */
+.dataTables_wrapper .dataTables_info {
+    float: left !important;
+    padding-top: 0.75rem !important;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.form-check-input:checked {
+    background-color: #d9383a !important;
+    border-color: #d9383a !important;
+}
+.form-check-input:focus {
+    border-color: #d9383a !important;
+    box-shadow: 0 0 0 0.25rem rgba(217, 56, 58, 0.25) !important;
+}
+<style>
+    /* =========================================================
+       ESTILOS GLOBALES PARA DATATABLES - TEMA ROJO (#d9383a)
+       ========================================================= */
+
+    /* 1. PAGINACIÓN: Números de página normales y hover */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: #555555 !important;
+        border-radius: 50% !important;
+        border: none !important;
+        background: transparent !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Hover en los números de página */
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background-color: #fce8e8 !important;
+        color: #d9383a !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Número de Página ACTIVA (Página actual) */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #d9383a !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 50% !important;
+        font-weight: 700 !important;
+        box-shadow: 0px 4px 10px rgba(217, 56, 58, 0.3) !important;
+    }
+
+    /* Flechas de Navegación (Siguiente / Anterior) */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.next,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.previous {
+        color: #d9383a !important;
+        border-radius: 8px !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.next:hover,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.previous:hover {
+        background-color: #fce8e8 !important;
+        color: #d9383a !important;
+    }
+
+    /* Botones de paginación deshabilitados */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+        color: #ccc !important;
+        background: transparent !important;
+    }
+
+    /* 2. CONTROLES DE BÚSQUEDA Y SELECCIÓN (INPUT & SELECT) */
+    .dataTables_wrapper .dataTables_filter input:focus,
+    .dataTables_wrapper .dataTables_length select:focus {
+        border-color: #d9383a !important;
+        outline: none !important;
+        box-shadow: 0 0 0 0.2rem rgba(217, 56, 58, 0.15) !important;
+    }
+
+    /* 3. ENCABEZADOS DE TABLA (Ordenación / Sorter) */
+    table.dataTable thead th.sorting_asc::after,
+    table.dataTable thead th.sorting_desc::after {
+        color: #d9383a !important;
+    }
+</style>
 /*# sourceMappingURL=style.css.map */

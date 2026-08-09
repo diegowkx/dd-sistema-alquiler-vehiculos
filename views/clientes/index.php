@@ -19,7 +19,7 @@
                             <div class="card-header d-flex flex-column align-items-start gap-3">
                                 <div class="d-flex justify-content-between align-items-center w-100">
                                     <h4 class="card-title mb-0">Gestión de Clientes</h4>
-                                    <button type="button" class="btn btn-primary btn-nuevo-cliente">
+                                    <button type="button" class="btn text-white btn-nuevo-cliente" style="background-color: #d9383a; border-color: #d9383a;">
                                         <i class="fas fa-plus me-1"></i>
                                         <span class="d-none d-sm-inline ms-1">Nuevo Cliente</span>
                                     </button>
@@ -28,7 +28,7 @@
                                 <div class="w-100 text-start">
                                     <ul class="nav nav-pills gap-2" id="pills-tab-clientes" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active px-3 py-2 tab-estado fw-bold" data-estado="ACTIVO" type="button">
+                                            <button class="nav-link active px-3 py-2 tab-estado fw-bold text-white" data-estado="ACTIVO" type="button" style="background-color: #d9383a; border-color: #d9383a;">
                                                 <i class="fas fa-user me-1"></i> Activos
                                             </button>
                                         </li>
@@ -48,6 +48,7 @@
                                             <tr>
                                                 <th>Documento</th>
                                                 <th>Razón Social / Nombre</th>
+                                                <th>Licencia</th>
                                                 <th>Correo</th>
                                                 <th>Teléfono</th>
                                                 <th>País</th>

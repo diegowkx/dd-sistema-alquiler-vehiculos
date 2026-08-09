@@ -12,7 +12,7 @@ class Clientes {
 
     public function getAll(): array {
         $stmt = $this->pdo->query("
-            SELECT tipo_documento, numero_documento, razon_social, correo, telefono,
+            SELECT tipo_documento, numero_documento, razon_social, licencia_conducir, correo, telefono,
                    direccion, pais, activo, created_at, updated_at
             FROM clientes
             WHERE activo = 1
@@ -23,7 +23,7 @@ class Clientes {
 
     public function getAllInactive(): array {
         $stmt = $this->pdo->query("
-            SELECT tipo_documento, numero_documento, razon_social, correo, telefono,
+            SELECT tipo_documento, numero_documento, razon_social, licencia_conducir, correo, telefono,
                    direccion, pais, activo, created_at, updated_at
             FROM clientes
             WHERE activo = 0
@@ -34,7 +34,7 @@ class Clientes {
 
     public function getByDocumento(string $numeroDocumento): array|false {
         $stmt = $this->pdo->prepare("
-            SELECT tipo_documento, numero_documento, razon_social, correo, telefono,
+            SELECT tipo_documento, numero_documento, razon_social, licencia_conducir, correo, telefono,
                    direccion, pais, activo, created_at, updated_at
             FROM clientes
             WHERE numero_documento = ?
@@ -44,65 +44,83 @@ class Clientes {
     }
 
     /**
-     * Búsqueda rápida por documento o razón social. Pensada para autocompletado
-     * (usada, por ejemplo, desde el formulario de Reservas).
+     * Búsqueda rápida por documento, razón social o licencia. Pensada para autocompletado.
      */
     public function buscar(string $termino, int $limite = 20): array {
         $like = '%' . $termino . '%';
         $limite = max(1, min($limite, 50));
         $stmt = $this->pdo->prepare("
-            SELECT tipo_documento, numero_documento, razon_social, correo, telefono
+            SELECT tipo_documento, numero_documento, razon_social, licencia_conducir, correo, telefono
             FROM clientes
-            WHERE activo = 1 AND (numero_documento LIKE ? OR razon_social LIKE ?)
+            WHERE activo = 1 AND (
+                numero_documento LIKE ? OR 
+                razon_social LIKE ? OR 
+                licencia_conducir LIKE ?
+            )
             ORDER BY razon_social ASC
             LIMIT " . $limite . "
         ");
-        $stmt->execute([$like, $like]);
+        $stmt->execute([$like, $like, $like]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function create(array $data): bool {
         $stmt = $this->pdo->prepare("
-            INSERT INTO clientes (tipo_documento, numero_documento, razon_social, correo, telefono, direccion, pais)
-            VALUES (:tipo_documento, :numero_documento, :razon_social, :correo, :telefono, :direccion, :pais)
+            INSERT INTO clientes (
+                tipo_documento, numero_documento, razon_social, licencia_conducir, 
+                correo, telefono, direccion, pais
+            ) VALUES (
+                :tipo_documento, :numero_documento, :razon_social, :licencia_conducir, 
+                :correo, :telefono, :direccion, :pais
+            )
         ");
+
+        $licencia = isset($data['licencia_conducir']) ? trim((string)$data['licencia_conducir']) : '';
+
         return $stmt->execute([
-            ':tipo_documento'   => $data['tipo_documento'],
-            ':numero_documento' => trim((string)$data['numero_documento']),
-            ':razon_social'     => trim((string)$data['razon_social']),
-            ':correo'           => $data['correo'] !== '' ? $data['correo'] : null,
-            ':telefono'         => $data['telefono'] !== '' ? $data['telefono'] : null,
-            ':direccion'        => $data['direccion'] !== '' ? $data['direccion'] : null,
-            ':pais'             => $data['pais'] !== '' ? $data['pais'] : 'Perú',
+            ':tipo_documento'    => $data['tipo_documento'],
+            ':numero_documento'  => trim((string)$data['numero_documento']),
+            ':razon_social'      => trim((string)$data['razon_social']),
+            ':licencia_conducir' => $licencia !== '' ? $licencia : null,
+            ':correo'            => !empty($data['correo']) ? trim((string)$data['correo']) : null,
+            ':telefono'          => !empty($data['telefono']) ? trim((string)$data['telefono']) : null,
+            ':direccion'         => !empty($data['direccion']) ? trim((string)$data['direccion']) : null,
+            ':pais'              => !empty($data['pais']) ? trim((string)$data['pais']) : 'Perú',
         ]);
     }
 
     /**
-     * Actualiza los datos de contacto del cliente. El tipo y número de documento (PK)
-     * NO se tocan aquí a propósito: para eso está cambiarDocumento().
+     * Actualiza los datos de contacto del cliente.
      */
     public function update(string $numeroDocumento, array $data): bool {
         $stmt = $this->pdo->prepare("
             UPDATE clientes
-            SET razon_social = :razon_social, correo = :correo, telefono = :telefono,
-                direccion = :direccion, pais = :pais
+            SET razon_social = :razon_social,
+                licencia_conducir = :licencia_conducir,
+                correo = :correo,
+                telefono = :telefono,
+                direccion = :direccion,
+                pais = :pais
             WHERE numero_documento = :numero_documento
         ");
+
+        $licencia = isset($data['licencia_conducir']) ? trim((string)$data['licencia_conducir']) : '';
+
         return $stmt->execute([
-            ':razon_social'     => trim((string)$data['razon_social']),
-            ':correo'           => $data['correo'] !== '' ? $data['correo'] : null,
-            ':telefono'         => $data['telefono'] !== '' ? $data['telefono'] : null,
-            ':direccion'        => $data['direccion'] !== '' ? $data['direccion'] : null,
-            ':pais'             => $data['pais'] !== '' ? $data['pais'] : 'Perú',
-            ':numero_documento' => $numeroDocumento,
+            ':razon_social'      => trim((string)$data['razon_social']),
+            ':licencia_conducir' => $licencia !== '' ? $licencia : null,
+            ':correo'            => !empty($data['correo']) ? trim((string)$data['correo']) : null,
+            ':telefono'          => !empty($data['telefono']) ? trim((string)$data['telefono']) : null,
+            ':direccion'         => !empty($data['direccion']) ? trim((string)$data['direccion']) : null,
+            ':pais'              => !empty($data['pais']) ? trim((string)$data['pais']) : 'Perú',
+            ':numero_documento'  => $numeroDocumento,
         ]);
     }
 
     /**
-     * Corrige el tipo/número de documento (PK) de un cliente ya registrado, para
-     * cuando hubo un error de digitación al crearlo. Gracias a los FOREIGN KEY con
-     * ON UPDATE CASCADE en reservas/estadias/comprobantes_pago, MySQL propaga el
-     * nuevo numero_documento automáticamente a todo el historial del cliente.
+     * Corrige el tipo/número de documento (PK) de un cliente ya registrado.
+     * Gracias al Foreign Key ON UPDATE CASCADE, MySQL propagará el cambio a 
+     * contratos_alquiler y comprobantes_pago automáticamente.
      */
     public function cambiarDocumento(string $numeroActual, string $nuevoTipo, string $nuevoNumero): bool {
         $stmt = $this->pdo->prepare("
@@ -112,7 +130,7 @@ class Clientes {
         ");
         return $stmt->execute([
             ':nuevo_tipo'    => $nuevoTipo,
-            ':nuevo_numero'  => $nuevoNumero,
+            ':nuevo_numero'  => trim($nuevoNumero),
             ':numero_actual' => $numeroActual,
         ]);
     }
@@ -134,15 +152,14 @@ class Clientes {
     }
 
     /**
-     * true si el cliente tiene reservas o estadías registradas. Útil como referencia
-     * antes de un cambio de documento (por si luego quieres mostrar una advertencia
-     * extra en el front cuando el cliente ya tiene historial).
+     * Comprueba si el cliente tiene contratos de alquiler o comprobantes emitidos.
+     * Útil antes de permitir acciones como eliminación física o al mostrar advertencias.
      */
     public function tieneMovimientos(string $numeroDocumento): bool {
         $stmt = $this->pdo->prepare("
             SELECT
-                (SELECT COUNT(*) FROM reservas WHERE cliente_doc = ?) +
-                (SELECT COUNT(*) FROM estadias WHERE cliente_doc = ?) AS total
+                (SELECT COUNT(*) FROM contratos_alquiler WHERE cliente_doc = ?) +
+                (SELECT COUNT(*) FROM comprobantes_pago WHERE cliente_num_doc = ?) AS total
         ");
         $stmt->execute([$numeroDocumento, $numeroDocumento]);
         return (int)$stmt->fetchColumn() > 0;

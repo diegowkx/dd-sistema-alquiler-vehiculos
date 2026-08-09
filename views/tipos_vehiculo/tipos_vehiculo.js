@@ -18,7 +18,7 @@ $(document).ready(function () {
         responsive: true,
         bDestroy: true,
         ajax: {
-            url: '?c=tipos_habitacion&a=listar',
+            url: '?c=tipos_vehiculo&a=listar',
             data: function (d) { d.estado = estadoFiltro; },
             dataSrc: function (json) {
                 if (!json || !json.success || !Array.isArray(json.data)) return [];
@@ -32,8 +32,7 @@ $(document).ready(function () {
                 data: 'descripcion', 
                 render: d => d ? `<span class="text-muted small">${d}</span>` : '<em class="text-muted small">Sin descripción</em>' 
             },
-            { data: 'precio_base_noche', render: d => `S/ ${parseFloat(d).toFixed(2)}` },
-            { data: 'capacidad_personas', render: d => `${d} pax` },
+            { data: 'precio_base_dia', render: d => `S/ ${parseFloat(d).toFixed(2)}` },
             {
                 data: 'activo',
                 render: function (data) {
@@ -76,7 +75,7 @@ $(document).ready(function () {
             },
             search: "Buscar:",
             lengthMenu: "Mostrar _MENU_ registros",
-            zeroRecords: "No se encontraron tipos de habitación",
+            zeroRecords: "No se encontraron tipos de vehículo",
             emptyTable: "No hay tipos en esta sección",
             loadingRecords: "Cargando...",
             info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
@@ -115,8 +114,7 @@ $(document).ready(function () {
 
             document.getElementById('tipo_id_hidden').value = data.id;
             document.getElementById('nombre_tipo').value = data.nombre;
-            document.getElementById('precio_base_noche').value = data.precio_base_noche;
-            document.getElementById('capacidad_personas').value = data.capacidad_personas;
+            document.getElementById('precio_base_dia').value = data.precio_base_dia;
             document.getElementById('descripcion_tipo').value = data.descripcion || '';
             if (lblTituloTipo) lblTituloTipo.innerText = 'EDITAR TIPO: ' + data.nombre;
 
@@ -141,7 +139,7 @@ $(document).ready(function () {
                 if (result.isConfirmed) {
                     const formData = new FormData();
                     formData.append('id', id);
-                    fetch('?c=tipos_habitacion&a=eliminar', { method: 'POST', body: formData })
+                    fetch('?c=tipos_vehiculo&a=eliminar', { method: 'POST', body: formData })
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
@@ -174,7 +172,7 @@ $(document).ready(function () {
                 if (result.isConfirmed) {
                     const formData = new FormData();
                     formData.append('id', id);
-                    fetch('?c=tipos_habitacion&a=restaurar', { method: 'POST', body: formData })
+                    fetch('?c=tipos_vehiculo&a=restaurar', { method: 'POST', body: formData })
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
@@ -194,10 +192,8 @@ $(document).ready(function () {
         formTipo.addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            // Validaciones del navegador y SweetAlert2
             const nombre = document.getElementById('nombre_tipo').value.trim();
-            const precio = parseFloat(document.getElementById('precio_base_noche').value);
-            const capacidad = parseInt(document.getElementById('capacidad_personas').value, 10);
+            const precio = parseFloat(document.getElementById('precio_base_dia').value);
             const descripcion = document.getElementById('descripcion_tipo').value.trim();
 
             if (nombre.length < 3 || nombre.length > 50) {
@@ -208,13 +204,7 @@ $(document).ready(function () {
 
             if (isNaN(precio) || precio <= 0) {
                 formTipo.classList.add('was-validated');
-                Swal.fire('Atención', 'El precio base por noche debe ser mayor a S/ 0.00.', 'warning');
-                return;
-            }
-
-            if (isNaN(capacidad) || capacidad < 1 || capacidad > 50) {
-                formTipo.classList.add('was-validated');
-                Swal.fire('Atención', 'La capacidad debe ser de entre 1 y 50 personas.', 'warning');
+                Swal.fire('Atención', 'El precio base por día debe ser mayor a S/ 0.00.', 'warning');
                 return;
             }
 
@@ -227,11 +217,11 @@ $(document).ready(function () {
             const formData = new FormData(this);
 
             try {
-                const res = await fetch('?c=tipos_habitacion&a=guardar', { method: 'POST', body: formData });
+                const res = await fetch('?c=tipos_vehiculo&a=guardar', { method: 'POST', body: formData });
                 const data = await res.json();
 
                 if (!data.success) {
-                    Swal.fire('Atención', data.message || 'Error al procesar el tipo de habitación', 'warning');
+                    Swal.fire('Atención', data.message || 'Error al procesar el tipo de vehículo', 'warning');
                     return;
                 }
 

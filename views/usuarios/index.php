@@ -15,25 +15,28 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
-                        <div class="card">
-                            <div class="card-header d-flex flex-column align-items-start gap-3">
+                        <div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden;">
+                            
+                            <!-- Cabecera de la vista con línea divisoria roja suave -->
+                            <div class="card-header d-flex flex-column align-items-start gap-3 bg-white pt-4 px-4 pb-3 border-0" style="border-bottom: 2px solid #fce8e8 !important;">
                                 <div class="d-flex justify-content-between align-items-center w-100">
-                                    <h4 class="card-title mb-0">Gestión de Usuarios</h4>
-                                    <button type="button" class="btn btn-primary btn-nuevo-usuario">
+                                    <h4 class="card-title mb-0 fw-bold text-dark">Gestión de Usuarios</h4>
+                                    <button type="button" class="btn text-white btn-nuevo-usuario rounded-pill px-4 py-2 fw-semibold" style="background-color: #d9383a; border: none;">
                                         <i class="fas fa-plus me-1"></i>
                                         <span class="d-none d-sm-inline ms-1">Nuevo Usuario</span>
                                     </button>
                                 </div>
 
+                                <!-- Pestañas de estado de usuarios -->
                                 <div class="w-100 text-start">
                                     <ul class="nav nav-pills gap-2" id="pills-tab-usuarios" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active px-3 py-2 tab-estado fw-bold" data-estado="ACTIVO" type="button">
+                                            <button class="nav-link active px-4 py-2 tab-estado fw-bold rounded-pill" data-estado="ACTIVO" type="button" style="background-color: #d9383a; color: #ffffff;">
                                                 <i class="fas fa-user-check me-1"></i> Usuarios Activos
                                             </button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link px-3 py-2 tab-estado text-dark fw-bold" data-estado="INACTIVO" type="button">
+                                            <button class="nav-link px-4 py-2 tab-estado fw-bold rounded-pill" data-estado="INACTIVO" type="button" style="background-color: #f1f5f9; color: #64748b;">
                                                 <i class="fas fa-user-slash me-1"></i> Usuarios Inactivos
                                             </button>
                                         </li>
@@ -41,7 +44,7 @@
                                 </div>
                             </div>
 
-                            <div class="card-body">
+                            <div class="card-body p-4">
                                 <div class="table-responsive">
                                     <table id="datatable_usuarios" class="display" style="width:100%">
                                         <thead>

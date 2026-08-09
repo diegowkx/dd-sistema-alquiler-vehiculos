@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
 
-            <div class="modal-header py-3 position-relative" style="background-color: #ff6b4a;">
+            <div class="modal-header py-3 position-relative" style="background-color: #d9383a;">
                 <div class="w-100 text-center">
                     <h4 class="modal-title fw-bold text-white mb-0" id="modalClienteLabel">
                         <i class="fas fa-user me-2"></i> <span id="lblTituloCliente">NUEVO CLIENTE</span>
@@ -19,7 +19,7 @@
                     <div class="row g-3">
                         <!-- Tipo de Documento -->
                         <div class="col-md-4">
-                            <label for="tipo_documento" class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">Tipo de Documento <span class="text-danger">*</span></label>
+                            <label for="tipo_documento" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">Tipo de Documento <span class="text-danger">*</span></label>
                             <select class="form-select border-2" id="tipo_documento" name="tipo_documento" required style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
                                 <option value="DNI">DNI</option>
                                 <option value="RUC">RUC</option>
@@ -31,7 +31,7 @@
 
                         <!-- N° Documento -->
                         <div class="col-md-8">
-                            <label for="numero_documento" class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">N° Documento <span class="text-danger">*</span></label>
+                            <label for="numero_documento" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">N° Documento <span class="text-danger">*</span></label>
                             <!-- Configurado por defecto para DNI (8 dígitos) -->
                             <input type="text" class="form-control border-2" id="numero_documento" name="numero_documento" minlength="8" maxlength="8" required placeholder="Ej: 12345678" style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
                             <div class="invalid-feedback">El DNI debe tener exactamente 8 dígitos numéricos.</div>
@@ -41,29 +41,36 @@
                         </div>
 
                         <!-- Razón Social / Nombre -->
-                        <div class="col-md-12">
-                            <label for="razon_social" class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">Razón Social / Nombre Completo <span class="text-danger">*</span></label>
+                        <div class="col-12">
+                            <label for="razon_social" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">Razón Social / Nombre Completo <span class="text-danger">*</span></label>
                             <input type="text" class="form-control border-2" id="razon_social" name="razon_social" maxlength="150" required style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
                             <div class="invalid-feedback">Este campo es obligatorio (máx. 150 caracteres).</div>
                         </div>
 
-                        <!-- Correo -->
+                        <!-- Licencia de Conducir -->
                         <div class="col-md-6">
-                            <label for="correo" class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">Correo</label>
-                            <input type="email" class="form-control border-2" id="correo" name="correo" maxlength="100" style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
-                            <div class="invalid-feedback">Ingrese un correo válido.</div>
+                            <label for="licencia_conducir" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">Licencia de Conducir</label>
+                            <input type="text" class="form-control border-2 text-uppercase" id="licencia_conducir" name="licencia_conducir" maxlength="30" placeholder="Ej: Q12345678" style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
+                            <div class="invalid-feedback">Máximo 30 caracteres.</div>
                         </div>
 
                         <!-- Teléfono -->
                         <div class="col-md-6">
-                            <label for="telefono" class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">Teléfono</label>
+                            <label for="telefono" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">Teléfono</label>
                             <input type="text" class="form-control border-2" id="telefono" name="telefono" maxlength="20" style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
                             <div class="invalid-feedback">Ingrese un teléfono válido.</div>
                         </div>
 
+                        <!-- Correo -->
+                        <div class="col-md-6">
+                            <label for="correo" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">Correo</label>
+                            <input type="email" class="form-control border-2" id="correo" name="correo" maxlength="100" style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
+                            <div class="invalid-feedback">Ingrese un correo válido.</div>
+                        </div>
+
                         <!-- País -->
                         <div class="col-md-6 position-relative">
-                            <label for="inputPais" class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">País <span class="text-danger">*</span></label>
+                            <label for="inputPais" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">País <span class="text-danger">*</span></label>
                             
                             <!-- Input fijo donde el usuario escribe o hace clic -->
                             <input type="text" class="form-control border-2" id="inputPais" name="pais" value="Perú" required autocomplete="off" placeholder="Seleccione o escriba un país..." style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
@@ -270,15 +277,15 @@
                         </div>
                         <!-- Dirección -->
                         <div class="col-md-12">
-                            <label for="direccion" class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">Dirección</label>
+                            <label for="direccion" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">Dirección</label>
                             <textarea class="form-control border-2" id="direccion" name="direccion" rows="2" style="border-radius: 8px; border-color: #cbd5e1;"></textarea>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer d-flex justify-content-end">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> Cerrar</button>
-                    <button type="submit" class="btn btn-primary" id="btnGuardarCliente" form="formCliente"><i class="fas fa-save me-1"></i> Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #6c757d; border-color: #6c757d; color: #ffffff;"><i class="fas fa-times me-1"></i> Cerrar</button>
+                    <button type="submit" class="btn text-white" id="btnGuardarCliente" form="formCliente" style="background-color: #d9383a; border-color: #d9383a;"><i class="fas fa-save me-1"></i> Guardar</button>
                 </div>
             </form>
         </div>
@@ -290,18 +297,18 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
 
-            <div class="modal-header py-3 position-relative bg-warning">
+            <div class="modal-header py-3 position-relative" style="background-color: #0b667c;">
                 <div class="w-100 text-center">
-                    <h4 class="modal-title fw-bold text-dark mb-0" id="modalCambiarDocumentoLabel">
+                    <h4 class="modal-title fw-bold text-white mb-0" id="modalCambiarDocumentoLabel">
                         <i class="fas fa-id-card me-2"></i> Corregir Documento
                     </h4>
                 </div>
-                <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <form id="formCambiarDocumento" autocomplete="off" novalidate>
                 <div class="modal-body p-4" style="background-color: #f8fafc;">
-                    <div class="alert alert-warning small">
+                    <div class="alert small" style="background-color: #e6f0f3; color: #0b667c; border: 1px solid #b3d4dc; border-radius: 8px;">
                         <i class="fas fa-exclamation-triangle me-1"></i>
                         Esto corrige un error de digitación en el documento del cliente. El cambio se
                         aplicará automáticamente a todo su historial (reservas, estadías, comprobantes).
@@ -310,13 +317,13 @@
                     <input type="hidden" id="numero_documento_actual" name="numero_documento_actual" value="">
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">Documento Actual</label>
+                        <label class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">Documento Actual</label>
                         <input type="text" class="form-control" id="documento_actual_display" disabled style="border-radius: 8px;">
                     </div>
 
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label for="nuevo_tipo_documento" class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">Nuevo Tipo <span class="text-danger">*</span></label>
+                            <label for="nuevo_tipo_documento" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">Nuevo Tipo <span class="text-danger">*</span></label>
                             <select class="form-select border-2" id="nuevo_tipo_documento" name="nuevo_tipo_documento" required style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
                                 <option value="DNI">DNI</option>
                                 <option value="RUC">RUC</option>
@@ -325,7 +332,7 @@
                             </select>
                         </div>
                         <div class="col-md-8">
-                            <label for="nuevo_numero_documento" class="form-label fw-bold" style="color: #ea580c; font-size: 0.9rem;">Nuevo Número <span class="text-danger">*</span></label>
+                            <label for="nuevo_numero_documento" class="form-label fw-bold" style="color: #d9383a; font-size: 0.9rem;">Nuevo Número <span class="text-danger">*</span></label>
                             <!-- Configurado inicialmente para DNI -->
                             <input type="text" class="form-control border-2" id="nuevo_numero_documento" name="nuevo_numero_documento" minlength="8" maxlength="8" required placeholder="Ej: 12345678" style="border-radius: 8px; border-color: #cbd5e1; height: 42px;">
                             <div class="invalid-feedback">El DNI debe tener exactamente 8 dígitos numéricos.</div>
@@ -333,9 +340,9 @@
                     </div>
                 </div>
 
-                <div class="modal-footer d-flex justify-content-end">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> Cancelar</button>
-                    <button type="submit" class="btn btn-warning" id="btnCambiarDocumento" form="formCambiarDocumento"><i class="fas fa-check me-1"></i> Corregir</button>
+                <div class="modal-footer d-flex justify-content-end gap-2">
+                    <button type="button" class="btn text-white" data-bs-dismiss="modal" style="background-color: #6c757d; border-color: #6c757d;"><i class="fas fa-times me-1"></i> Cancelar</button>
+                    <button type="submit" class="btn text-white" id="btnCambiarDocumento" form="formCambiarDocumento" style="background-color: #0b667c; border-color: #0b667c;"><i class="fas fa-check me-1"></i> Corregir</button>
                 </div>
             </form>
         </div>

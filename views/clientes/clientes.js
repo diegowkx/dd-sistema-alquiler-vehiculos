@@ -20,7 +20,6 @@ $(document).ready(function () {
         'DNI': { min: 8, max: 8, mensaje: 'El DNI debe tener exactamente 8 dígitos numéricos.', soloNumeros: true, placeholder: 'Ej: 12345678' },
         'RUC': { min: 11, max: 11, mensaje: 'El RUC debe tener exactamente 11 dígitos numéricos.', soloNumeros: true, placeholder: 'Ej: 00123456789' },
         'CE': { min: 9, max: 12, mensaje: 'El Carné de Extranjería debe tener entre 9 y 12 caracteres.', soloNumeros: false, placeholder: 'Ej: 000123456789' },
-        // Máximo a 15 para mayor compatibilidad con pasaportes internacionales
         'PASAPORTE': { min: 8, max: 15, mensaje: 'El Pasaporte debe tener entre 8 y 15 caracteres alfanuméricos.', soloNumeros: false, placeholder: 'Ej: A12345678901234' }
     };
 
@@ -41,7 +40,6 @@ $(document).ready(function () {
         }
     }
 
-    // Eventos para Modal Principal (Crear / Editar)
     if (inputTipoDoc) {
         inputTipoDoc.addEventListener('change', function () {
             aplicarReglas(inputTipoDoc, inputNumeroDoc);
@@ -58,7 +56,6 @@ $(document).ready(function () {
         });
     }
 
-    // Eventos para Modal de Corregir Documento
     if (inputNuevoTipoDoc) {
         inputNuevoTipoDoc.addEventListener('change', function () {
             aplicarReglas(inputNuevoTipoDoc, inputNuevoNumeroDoc);
@@ -100,6 +97,10 @@ $(document).ready(function () {
                 render: d => `<span class="fw-bold" style="color:#1e293b;">${d.tipo_documento}: ${d.numero_documento}</span>`
             },
             { data: 'razon_social' },
+            {
+                data: 'licencia_conducir',
+                render: d => d ? `<span class="fw-semibold text-uppercase">${d}</span>` : '<span class="text-muted small">-</span>'
+            },
             {
                 data: 'correo',
                 render: d => d ? d : '<span class="text-muted small">-</span>'
@@ -160,7 +161,6 @@ $(document).ready(function () {
         }
     });
 
-    // Pestañas de filtro (Activos / Inactivos)
     document.querySelectorAll('#pills-tab-clientes .tab-estado').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('#pills-tab-clientes .tab-estado').forEach(b => b.classList.remove('active'));
@@ -170,7 +170,6 @@ $(document).ready(function () {
         });
     });
 
-    // Control del autocompletado flotante para el país
     const inputPais = document.getElementById('inputPais');
     const listaPaisesFlotante = document.getElementById('listaPaisesFlotante');
 
@@ -187,11 +186,7 @@ $(document).ready(function () {
 
             itemsPaises.forEach(item => {
                 const texto = item.textContent.toLowerCase();
-                if (texto.includes(filtro)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
+                item.style.display = texto.includes(filtro) ? 'block' : 'none';
             });
         });
 
@@ -209,7 +204,6 @@ $(document).ready(function () {
         });
     }
 
-    // Abrir modal de creación
     const btnNuevo = document.querySelector('.btn-nuevo-cliente');
     if (btnNuevo && clienteModal) {
         btnNuevo.addEventListener('click', function () {
@@ -227,7 +221,6 @@ $(document).ready(function () {
         });
     }
 
-    // Delegación de eventos para botones dinámicos en la tabla
     document.addEventListener('click', function (e) {
         const btnEditar = e.target.closest('.btn-editar-cliente');
         if (btnEditar && clienteModal) {
@@ -246,10 +239,11 @@ $(document).ready(function () {
             aplicarReglas(inputTipoDoc, inputNumeroDoc);
             setVal('numero_documento', data.numero_documento);
             setVal('razon_social', data.razon_social);
+            setVal('licencia_conducir', data.licencia_conducir);
             setVal('correo', data.correo);
             setVal('telefono', data.telefono);
             setVal('direccion', data.direccion);
-            setVal('pais', data.pais);
+            setVal('inputPais', data.pais);
 
             if (inputTipoDoc) inputTipoDoc.disabled = true;
             if (inputNumeroDoc) inputNumeroDoc.readOnly = true;

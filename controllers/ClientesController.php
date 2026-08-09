@@ -39,8 +39,7 @@ class ClientesController {
     }
 
     /**
-     * Autocompletado de clientes por documento o razón social. Usado, entre otros,
-     * por el formulario de Reservas.
+     * Autocompletado de clientes por documento, razón social o licencia de conducir.
      */
     public function buscarAJAX(PDO $pdo): void {
         $this->requierePermisoApi('CLIENTES');
@@ -81,30 +80,25 @@ class ClientesController {
 
     /**
      * Reglas de formato por tipo de documento.
-     * Ajustado para coincidir con las reglas del frontend.
      */
     private function validarNumeroDocumento(string $tipo, string $numero): ?string {
         switch ($tipo) {
             case 'DNI':
-                // Exactamente 8 dígitos numéricos
                 if (!preg_match('/^\d{8}$/', $numero)) {
                     return 'El DNI debe tener exactamente 8 dígitos numéricos.';
                 }
                 break;
             case 'RUC':
-                // Exactamente 11 dígitos numéricos
                 if (!preg_match('/^\d{11}$/', $numero)) {
                     return 'El RUC debe tener exactamente 11 dígitos numéricos.';
                 }
                 break;
             case 'CE':
-                // Carné de Extranjería: 9 a 12 caracteres alfanuméricos
                 if (!preg_match('/^[A-Z0-9]{9,12}$/', $numero)) {
                     return 'El Carné de Extranjería debe tener entre 9 y 12 caracteres.';
                 }
                 break;
             case 'PASAPORTE':
-                // Pasaporte: 8 a 15 caracteres alfanuméricos (ajustado según lo conversado)
                 if (!preg_match('/^[A-Z0-9]{8,15}$/', $numero)) {
                     return 'El Pasaporte debe tener entre 8 y 15 caracteres alfanuméricos.';
                 }
@@ -127,6 +121,7 @@ class ClientesController {
         $tipoDocumento = strtoupper(trim((string)($_POST['tipo_documento'] ?? '')));
         $numeroDocumento = strtoupper(trim((string)($_POST['numero_documento'] ?? '')));
         $razonSocial = trim((string)($_POST['razon_social'] ?? ''));
+        $licenciaConducir = strtoupper(trim((string)($_POST['licencia_conducir'] ?? '')));
         $correo = trim((string)($_POST['correo'] ?? ''));
         $telefono = trim((string)($_POST['telefono'] ?? ''));
         $direccion = trim((string)($_POST['direccion'] ?? ''));
@@ -150,19 +145,25 @@ class ClientesController {
             exit;
         }
 
-        // 3. Razón social / nombre
+        // 3. Razón social / Nombre
         if ($razonSocial === '' || mb_strlen($razonSocial) > 150) {
             echo json_encode(['success' => false, 'message' => 'La razón social / nombre es obligatorio y no puede exceder 150 caracteres.']);
             exit;
         }
 
-        // 4. Correo
+        // 4. Licencia de conducir (Opcional, máx 30 caracteres)
+        if ($licenciaConducir !== '' && mb_strlen($licenciaConducir) > 30) {
+            echo json_encode(['success' => false, 'message' => 'La licencia de conducir no puede exceder 30 caracteres.']);
+            exit;
+        }
+
+        // 5. Correo
         if ($correo !== '' && !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
             echo json_encode(['success' => false, 'message' => 'El correo ingresado no es válido.']);
             exit;
         }
 
-        // 5. Teléfono
+        // 6. Teléfono
         if ($telefono !== '' && !preg_match('/^[0-9+\s()-]{6,20}$/', $telefono)) {
             echo json_encode(['success' => false, 'message' => 'El teléfono ingresado no es válido.']);
             exit;
@@ -172,13 +173,14 @@ class ClientesController {
         $model = new Clientes($pdo);
 
         $data = [
-            'tipo_documento'   => $tipoDocumento,
-            'numero_documento' => $numeroDocumento,
-            'razon_social'     => $razonSocial,
-            'correo'           => $correo,
-            'telefono'         => $telefono,
-            'direccion'        => $direccion,
-            'pais'             => $pais,
+            'tipo_documento'    => $tipoDocumento,
+            'numero_documento'  => $numeroDocumento,
+            'razon_social'      => $razonSocial,
+            'licencia_conducir' => $licenciaConducir,
+            'correo'            => $correo,
+            'telefono'          => $telefono,
+            'direccion'         => $direccion,
+            'pais'              => $pais,
         ];
 
         try {
@@ -191,7 +193,6 @@ class ClientesController {
                     exit;
                 }
 
-                // El tipo/número de documento no se editan por esta vía (usar cambiarDocumento).
                 $resultado = $model->update($original, $data);
                 $mensajeOk = 'Cliente actualizado correctamente';
                 $mensajeError = 'No se pudo actualizar el cliente';
@@ -218,9 +219,8 @@ class ClientesController {
     }
 
     /**
-     * Corrige el tipo/número de documento de un cliente (error de digitación al
-     * registrarlo). Como numero_documento es PK y tiene FKs con ON UPDATE CASCADE,
-     * el cambio se propaga solo al historial de reservas/estadías/comprobantes.
+     * Corrige el tipo/número de documento (PK) de un cliente ya registrado.
+     * Propaga los cambios a contratos_alquiler y comprobantes_pago vía CASCADE.
      */
     public function cambiarDocumento(PDO $pdo): void {
         $this->requierePermisoApi('CLIENTES');
@@ -274,7 +274,7 @@ class ClientesController {
             echo json_encode([
                 'success' => $resultado,
                 'message' => $resultado
-                    ? "Documento corregido correctamente. El historial de reservas y estadías fue actualizado a '{$nuevoNumero}'."
+                    ? "Documento corregido correctamente. Se actualizó el historial de contratos y comprobantes a '{$nuevoNumero}'."
                     : 'No se pudo corregir el documento del cliente',
                 'nuevo_numero_documento' => $nuevoNumero,
             ]);

@@ -12,11 +12,12 @@ INSERT INTO permisos (nombre, descripcion) VALUES
 ('DASHBOARD', 'Panel general de métricas y estadísticas'),
 ('ROLES', 'Gestión de roles y privilegios'),
 ('USUARIOS', 'Gestión de empleados y credenciales'),
-('TIPOS_VEHICULOS', 'Catálogo de categorías y precios base'),
+('TIPOS_VEHICULOS', 'Gestion de los tipos de vehiculos'),
 ('VEHICULOS', 'Gestión de la flota vehicular y estados'),
 ('CLIENTES', 'Registro y administración de arrendatarios'),
 ('CONTRATOS', 'Gestión de salidas, retornos, liquidación y contratos'),
-('FACTURACION', 'Emisión de comprobantes de pago, boletas y facturas');
+('FACTURACION', 'Emisión de comprobantes de pago, boletas y facturas'),
+('CATALOGO', 'Módulo visual para mostrar los autos actuales y sus datos');
 
 -- 3. ASIGNACIÓN DE PERMISOS A ROLES
 -- El ADMINISTRADOR tiene acceso a TODO
@@ -28,7 +29,9 @@ INSERT INTO permisos_roles (rol_nombre, permiso_nombre) VALUES
 ('ADMINISTRADOR', 'VEHICULOS'),
 ('ADMINISTRADOR', 'CLIENTES'),
 ('ADMINISTRADOR', 'CONTRATOS'),
-('ADMINISTRADOR', 'FACTURACION');
+('ADMINISTRADOR', 'FACTURACION'),
+('ADMINISTRADOR', 'CATALOGO');
+
 
 -- El ASESOR tiene acceso a la operación del día a día (Sin dashboard, ni roles, ni usuarios)
 INSERT INTO permisos_roles (rol_nombre, permiso_nombre) VALUES 
@@ -36,7 +39,8 @@ INSERT INTO permisos_roles (rol_nombre, permiso_nombre) VALUES
 ('ASESOR', 'VEHICULOS'),
 ('ASESOR', 'CLIENTES'),
 ('ASESOR', 'CONTRATOS'),
-('ASESOR', 'FACTURACION');
+('ASESOR', 'FACTURACION'),
+('ASESOR', 'CATALOGO');
 
 -- 4. USUARIOS
 -- Contraseña para ambos usuarios (clave): $2y$10$VNgHI7pLLJc8otgTE/MMX.vLCVejzBT4mWskGyQ5AhA5vj2LSTZHG

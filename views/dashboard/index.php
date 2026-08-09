@@ -24,11 +24,11 @@
             <div class="container-fluid">
                 <!-- Header -->
                 <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-                    <h2 class="mb-3 me-auto">Dashboard Hotelero</h2>
+                    <h2 class="mb-3 me-auto">Dashboard Alquiler de Autos</h2>
                     <div>
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript:void(0)">Inicio</a></li>
-                            <li class="breadcrumb-item active"><a href="javascript:void(0)">Dashboard</a></li>
+                            <li class="breadcrumb-item active"><a href="javascript:void(0)" style="color: #d9383a;">Dashboard</a></li>
                         </ol>
                     </div>
                 </div> 
@@ -38,12 +38,12 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3 py-3">
-                                <h5 class="mb-0 fw-bold"><i class="fas fa-filter text-primary me-2"></i>Filtro de Estadías por Fecha de Check-out</h5>
+                                <h5 class="mb-0 fw-bold"><i class="fas fa-filter me-2" style="color: #d9383a;"></i>Filtro de Estadías por Fecha de Alquiler</h5>
                                 <div class="d-flex flex-wrap align-items-center gap-2">
-                                    <input type="date" id="fecha_inicio" class="form-control w-auto" value="<?php echo date('Y-m-d'); ?>">
+                                    <input type="date" id="fecha_inicio" class="form-control w-auto shadow-none border-secondary" value="<?php echo date('Y-m-d'); ?>">
                                     <span class="fw-bold">a</span>
-                                    <input type="date" id="fecha_fin" class="form-control w-auto" value="<?php echo date('Y-m-d'); ?>">
-                                    <button type="button" id="btn_filtrar" class="btn btn-primary">
+                                    <input type="date" id="fecha_fin" class="form-control w-auto shadow-none border-secondary" value="<?php echo date('Y-m-d'); ?>">
+                                    <button type="button" id="btn_filtrar" class="btn text-white" style="background-color: #d9383a; border-color: #d9383a;">
                                         <i class="fas fa-search me-1"></i> Filtrar
                                     </button>
                                 </div>
@@ -52,25 +52,28 @@
                     </div>
                 </div>
 
-                <!-- CARDS DE RESUMEN HOTELERO -->
+                <!-- CARDS DE RESUMEN DE ALQUILER -->
                 <div class="row">
+                    <!-- CARD 1: TOTAL AUTOS ALQUILADOS -->
                     <div class="col-xl-6 col-md-6 mb-4">
-                        <div class="card border-start border-primary border-4 shadow-sm">
+                        <div class="card shadow-sm" style="border: 2px solid #d9383a !important; border-radius: 18px;">
                             <div class="card-body">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div>
-                                        <span class="text-muted fw-bold">TOTAL ESTADÍAS FINALIZADAS</span>
-                                        <h2 class="mt-2 mb-0 fw-bold text-primary" id="lbl_total_ventas">0</h2>
+                                        <span class="text-muted fw-bold">TOTAL AUTOS ALQUILADOS</span>
+                                        <h2 class="mt-2 mb-0 fw-bold" id="lbl_total_ventas" style="color: #d9383a;">0</h2>
                                     </div>
-                                    <div class="bg-soft-primary p-3 rounded-circle">
-                                        <i class="fas fa-door-open fs-1 text-primary"></i>
+                                    <div class="p-3 rounded-circle" style="background-color: #fce8e8;">
+                                        <i class="fas fa-car fs-1" style="color: #d9383a;"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- CARD 2: INGRESO TOTAL RECAUDADO -->
                     <div class="col-xl-6 col-md-6 mb-4">
-                        <div class="card border-start border-success border-4 shadow-sm">
+                        <div class="card shadow-sm" style="border: 2px solid #28a745 !important; border-radius: 18px;">
                             <div class="card-body">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div>
@@ -80,34 +83,6 @@
                                     <div class="bg-soft-success p-3 rounded-circle">
                                         <i class="fas fa-cash-register fs-1 text-success"></i>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TABLA DE OCUPACIÓN ACTUAL DE HABITACIONES -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header border-0 pb-0">
-                                <h4 class="card-title fw-bold">Estado y Ocupación Actual de Habitaciones</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table id="datatable_productos" class="table table-striped custom-table w-100">
-                                        <thead>
-                                            <tr>
-                                                <th>Nº Habitación</th>
-                                                <th>Tipo</th>
-                                                <th>Piso</th>
-                                                <th>Disponibilidad</th>
-                                                <th>Precio Noche</th>
-                                                <th>Cliente Actual</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -169,7 +144,7 @@
                                 <strong>Correo:</strong> <span id="det_ip_correo">-</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <strong>Rol:</strong> <span id="det_ip_rol" class="badge bg-primary">-</span>
+                                <strong>Rol:</strong> <span id="det_ip_rol" class="badge text-white" style="background-color: #1e293b;">-</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <strong>Dirección IP:</strong> <span id="det_ip_address" class="fw-bold text-dark">-</span>

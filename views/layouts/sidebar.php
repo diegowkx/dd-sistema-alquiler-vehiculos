@@ -1,4 +1,93 @@
 <div class="deznav">
+    <!-- REGLAS DE CSS PARA ANULAR EL NARANJA/AZUL NATIVO Y APLICAR HOVER EN ROJO -->
+    <style>
+        /* 1. RESET GENERAL DE NAVEGACIÓN */
+        .deznav .metismenu li > a {
+            background-color: transparent !important;
+            color: #7e7e7e !important;
+            transition: all 0.2s ease-in-out !important;
+            display: flex !important;
+            align-items: center !important;
+            padding: 10px 16px !important;
+        }
+
+        /* Estilo base para el contenedor del icono (MÁS GRANDE) */
+        .deznav .metismenu li > a i {
+            color: #7e7e7e !important;
+            background: transparent !important;
+            border: 2px solid transparent !important;
+            border-radius: 50% !important;
+            width: 52px !important;            /* Diámetro del círculo */
+            height: 52px !important;           /* Diámetro del círculo */
+            min-width: 52px !important;        /* Evita que se deforme */
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 24px !important;        /* Tamaño del icono */
+            margin-right: 14px !important;
+            box-shadow: none !important;
+        }
+
+        /* Forzar el tamaño del vector/glifo de FontAwesome */
+        .deznav .metismenu li > a i::before {
+            display: inline-block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            font-size: 24px !important;
+        }
+
+        /* 2. ESTADO HOVER / CLICK (Cápsula blanca con sombra, texto e icono rojo) */
+        .deznav .metismenu li:not(.mm-active) > a:hover,
+        .deznav .metismenu li:not(.mm-active) > a:focus,
+        .deznav .metismenu li:not(.mm-active) > a:active {
+            background-color: #ffffff !important;
+            color: #d9383a !important;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.07) !important;
+            border-radius: 40px !important;
+        }
+
+        .deznav .metismenu li:not(.mm-active) > a:hover .nav-text,
+        .deznav .metismenu li:not(.mm-active) > a:focus .nav-text,
+        .deznav .metismenu li:not(.mm-active) > a:active .nav-text {
+            color: #d9383a !important;
+            font-weight: 600 !important;
+        }
+
+        .deznav .metismenu li:not(.mm-active) > a:hover i,
+        .deznav .metismenu li:not(.mm-active) > a:focus i,
+        .deznav .metismenu li:not(.mm-active) > a:active i {
+            background-color: #ffffff !important;
+            color: #d9383a !important;
+            border: 2px solid #d9383a !important;
+        }
+
+        /* 3. ESTADO ACTIVO SELECCIONADO (Pastilla roja suave #fce8e8) */
+        .deznav .metismenu li.mm-active > a {
+            background-color: #fce8e8 !important;
+            color: #d9383a !important;
+            border-radius: 40px !important;
+        }
+
+        .deznav .metismenu li.mm-active > a .nav-text {
+            color: #d9383a !important;
+            font-weight: 700 !important;
+        }
+
+        .deznav .metismenu li.mm-active > a i {
+            background-color: #ffffff !important;
+            color: #d9383a !important;
+            border: 2px solid #d9383a !important;
+        }
+
+        /* 4. BLOQUEAR CAPAS Y PSEUDOELEMENTOS NATIVOS DE LA PLANTILLA */
+        .deznav .metismenu a::before,
+        .deznav .metismenu a::after {
+            background-color: transparent !important;
+            background: none !important;
+            display: none !important;
+        }
+    </style>
+
     <div class="deznav-scroll">
         <ul class="metismenu" id="menu">
 
@@ -56,27 +145,27 @@
                 </li>
             <?php endif; ?>
 
-            <!-- 4. TIPOS DE HABITACIÓN -->
-            <?php if (tienePermisoSidebar('TIPOS_HABITACION')): ?>
-                <li class="<?= in_array($currentController, ['tipos_habitacion', 'tiposhabitacion', 'tipos'], true) ? 'mm-active' : '' ?>">
-                    <a class="ai-icon" href="?c=tipos_habitacion" aria-expanded="false">
-                        <i class="fas fa-layer-group"></i>
-                        <span class="nav-text">Tipos Habitación</span>
+            <!-- 4. TIPOS DE VEHÍCULOS -->
+            <?php if (tienePermisoSidebar('TIPOS_VEHICULOS')): ?>
+                <li class="<?= ($currentController === 'tipos_vehiculos' || $currentController === 'tipos_vehiculo') ? 'mm-active' : '' ?>">
+                    <a class="ai-icon" href="?c=tipos_vehiculo" aria-expanded="false">
+                        <i class="fas fa-tags"></i>
+                        <span class="nav-text">Tipos Vehículos</span>
                     </a>
                 </li>
             <?php endif; ?>
 
-            <!-- 5. HABITACIONES -->
-            <?php if (tienePermisoSidebar('HABITACIONES')): ?>
-                <li class="<?= ($currentController === 'habitaciones') ? 'mm-active' : '' ?>">
-                    <a class="ai-icon" href="?c=habitaciones" aria-expanded="false">
-                        <i class="fas fa-door-open"></i>
-                        <span class="nav-text">Habitaciones</span>
+            <!-- 5. VEHÍCULOS -->
+            <?php if (tienePermisoSidebar('VEHICULOS')): ?>
+                <li class="<?= ($currentController === 'vehiculos') ? 'mm-active' : '' ?>">
+                    <a class="ai-icon" href="?c=vehiculos" aria-expanded="false">
+                        <i class="fas fa-car"></i>
+                        <span class="nav-text">Vehículos</span>
                     </a>
                 </li>
             <?php endif; ?>
 
-            <!-- 6. CLIENTES / HUÉSPEDES -->
+            <!-- 6. CLIENTES (ARRENDATARIOS) -->
             <?php if (tienePermisoSidebar('CLIENTES')): ?>
                 <li class="<?= ($currentController === 'clientes') ? 'mm-active' : '' ?>">
                     <a class="ai-icon" href="?c=clientes" aria-expanded="false">
@@ -86,32 +175,32 @@
                 </li>
             <?php endif; ?>
 
-            <!-- 7. RESERVAS -->
-            <?php if (tienePermisoSidebar('RESERVAS')): ?>
-                <li class="<?= ($currentController === 'reservas') ? 'mm-active' : '' ?>">
-                    <a class="ai-icon" href="?c=reservas" aria-expanded="false">
-                        <i class="fas fa-calendar-check"></i>
-                        <span class="nav-text">Reservas</span>
+            <!-- 7. CONTRATOS -->
+            <?php if (tienePermisoSidebar('CONTRATOS')): ?>
+                <li class="<?= ($currentController === 'contratos') ? 'mm-active' : '' ?>">
+                    <a class="ai-icon" href="?c=contratos" aria-expanded="false">
+                        <i class="fas fa-file-contract"></i>
+                        <span class="nav-text">Contratos</span>
                     </a>
                 </li>
             <?php endif; ?>
 
-            <!-- 8. ESTADÍAS (Check-In / Check-Out) -->
-            <?php if (tienePermisoSidebar('ESTADIAS')): ?>
-                <li class="<?= ($currentController === 'estadias') ? 'mm-active' : '' ?>">
-                    <a class="ai-icon" href="?c=estadias" aria-expanded="false">
-                        <i class="fas fa-concierge-bell"></i>
-                        <span class="nav-text">Estadías</span>
-                    </a>
-                </li>
-            <?php endif; ?>
-
-            <!-- 9. FACTURACIÓN Y COMPROBANTES SUNAT -->
+            <!-- 8. FACTURACIÓN -->
             <?php if (tienePermisoSidebar('FACTURACION')): ?>
                 <li class="<?= ($currentController === 'facturacion') ? 'mm-active' : '' ?>">
                     <a class="ai-icon" href="?c=facturacion" aria-expanded="false">
                         <i class="fas fa-file-invoice-dollar"></i>
                         <span class="nav-text">Facturación</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <!-- 9. CATÁLOGO -->
+            <?php if (tienePermisoSidebar('CATALOGO')): ?>
+                <li class="<?= ($currentController === 'catalogo') ? 'mm-active' : '' ?>">
+                    <a class="ai-icon" href="?c=catalogo" aria-expanded="false">
+                        <i class="fas fa-car-side"></i>
+                        <span class="nav-text">Catálogo</span>
                     </a>
                 </li>
             <?php endif; ?>
