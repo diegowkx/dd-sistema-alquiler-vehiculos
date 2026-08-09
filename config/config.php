@@ -1,7 +1,7 @@
 <?php
 
 // Modo de depuración (true en local, false en producción)
-define('MODO_DEBUG', true);
+define('MODO_DEBUG', false);
 
 if (MODO_DEBUG) {
     ini_set('display_errors', 1);
@@ -12,7 +12,7 @@ if (MODO_DEBUG) {
 }
 
 // URL Base
-define('BASE_URL', 'http://localhost/dd-sistema-alquiler-vehiculos');
+define('BASE_URL', 'https://gestcarcore.protechsoluciones.com');
 
 // Nombre del sistema
 define('APP_NAME', 'GestCar Core');
@@ -20,9 +20,9 @@ define('APP_VERSION', '1.0');
 
 // Credenciales de la base de datos 
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'dd_alquiler_vehiculos_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_NAME', 'ene29pro_dd_alquiler_vehiculos_db');
+define('DB_USER', 'ene29pro_alquiler_vehiculos_db');
+define('DB_PASS', 'admin60780343');
 define('DB_CHARSET', 'utf8mb4');
 
 // Configuración de sesión segura

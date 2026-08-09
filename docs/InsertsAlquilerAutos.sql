@@ -56,9 +56,9 @@ INSERT INTO tipos_vehiculo (nombre, descripcion, precio_base_dia, activo) VALUES
 
 -- 6. VEHÍCULOS (Catálogo inicial)
 INSERT INTO vehiculos (placa, tipo_nombre, marca, modelo, anio, color, kilometraje, estado_disponibilidad, imagen_url, observaciones, activo) VALUES 
-('ABC-123', 'Sedán', 'Toyota', 'Corolla', 2023, 'Blanco', 15000, 'DISPONIBLE', 'assets/vehiculos/corolla.png', 'Vehículo en excelente estado', 1),
-('XYZ-789', 'SUV', 'Hyundai', 'Tucson', 2024, 'Gris Plata', 8000, 'DISPONIBLE', 'assets/vehiculos/tucson.png', 'Nuevo modelo con pantalla táctil', 1),
-('MNO-456', 'Pickup', 'Toyota', 'Hilux', 2022, 'Rojo', 45000, 'DISPONIBLE', 'assets/vehiculos/hilux.png', 'Uso moderado, llantas nuevas', 1);
+('ABC-123', 'Sedán', 'Toyota', 'Corolla', 2023, 'Blanco', 15000, 'DISPONIBLE', 'assets/vehiculos/default.png', 'Vehículo en excelente estado', 1),
+('XYZ-789', 'SUV', 'Hyundai', 'Tucson', 2024, 'Gris Plata', 8000, 'DISPONIBLE', 'assets/vehiculos/default.png', 'Nuevo modelo con pantalla táctil', 1),
+('MNO-456', 'Pickup', 'Toyota', 'Hilux', 2022, 'Rojo', 45000, 'DISPONIBLE', 'assets/vehiculos/default.png', 'Uso moderado, llantas nuevas', 1);
 
 -- 7. CLIENTES (Arrendatarios de prueba)
 INSERT INTO clientes (tipo_documento, numero_documento, razon_social, licencia_conducir, correo, telefono, direccion, pais, activo) VALUES 

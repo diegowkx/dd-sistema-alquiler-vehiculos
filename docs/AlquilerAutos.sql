@@ -124,23 +124,22 @@ CREATE TABLE clientes (
 -- 5. OPERACIONES: CONTRATOS, LIQUIDACIÓN Y FACTURACIÓN
 -- =======================================================
 
--- 9. Contratos de Alquiler (Acuerdo Inicial)
 CREATE TABLE contratos_alquiler (
     id INT AUTO_INCREMENT PRIMARY KEY,
     placa_vehiculo VARCHAR(10) NOT NULL,
     cliente_doc VARCHAR(20) NOT NULL,
-    usuario_creacion VARCHAR(20) NOT NULL,            -- Empleado que genera el contrato
+    usuario_creacion VARCHAR(20) NOT NULL,
     
     fecha_hora_salida DATETIME NOT NULL,
     fecha_hora_devolucion_estimada DATETIME NOT NULL,
     
     tarifa_dia_pactada DECIMAL(10, 2) NOT NULL,
-    monto_adelanto DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    -- MONTO ADELANTO ELIMINADO
     
     kilometraje_salida INT NOT NULL,
     
     estado ENUM('ACTIVO', 'FINALIZADO', 'CANCELADO') NOT NULL DEFAULT 'ACTIVO',
-    observaciones_salida TEXT,                        -- Rayones, estado inicial del tanque, etc.
+    observaciones_salida TEXT,
     firmado TINYINT(1) NOT NULL DEFAULT 0,
     
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
@@ -206,8 +205,8 @@ CREATE TABLE comprobantes_pago (
 
     -- Emisor
     emisor_ruc VARCHAR(11) NOT NULL DEFAULT '20123456789',
-    emisor_razon_social VARCHAR(150) NOT NULL DEFAULT 'HOTEL SUITES & RESORT S.A.C.',
-    emisor_direccion TEXT NOT NULL DEFAULT 'Av. Principal 123, Lima, Perú',
+    emisor_razon_social VARCHAR(150) NOT NULL DEFAULT 'RENT A CAR S.A.C.',
+    emisor_direccion VARCHAR(255) NOT NULL DEFAULT 'Av. Principal 123, Lima, Perú',
 
     -- Receptor / Cliente
     cliente_tipo_doc ENUM('DNI', 'RUC', 'CE', 'PASAPORTE') NOT NULL DEFAULT 'DNI',
@@ -226,7 +225,6 @@ CREATE TABLE comprobantes_pago (
     subtotal_alquiler DECIMAL(10, 2) NOT NULL,
     total_cargos_extra DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     descuento DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    monto_adelanto_aplicado DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     
     op_gravadas DECIMAL(10, 2) NOT NULL,
     igv DECIMAL(10, 2) NOT NULL,
@@ -241,13 +239,7 @@ CREATE TABLE comprobantes_pago (
     -- Relaciones y Restricciones
     FOREIGN KEY (contrato_id) REFERENCES contratos_alquiler(id) ON UPDATE CASCADE,
     FOREIGN KEY (usuario_emision) REFERENCES usuarios(username) ON UPDATE CASCADE,
-
-    -- Unicidad y Validaciones
-    CONSTRAINT uq_comprobante_estadia UNIQUE (estadia_id),
-    CONSTRAINT uq_comprobante_serie_numero UNIQUE (serie, numero),
-    CONSTRAINT chk_origen_comprobante CHECK (
-        (tipo_origen = 'RESERVA' AND reserva_id IS NOT NULL AND estadia_id IS NULL) OR
-        (tipo_origen = 'ESTADIA' AND estadia_id IS NOT NULL AND reserva_id IS NULL)
-    )
+    
+    CONSTRAINT uq_comprobante_contrato UNIQUE (contrato_id),
+    CONSTRAINT uq_comprobante_serie_numero UNIQUE (serie, numero)
 );
-
