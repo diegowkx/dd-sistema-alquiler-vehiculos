@@ -3,6 +3,7 @@
 <head>
     <?php include __DIR__ . '/../layouts/head/head_meta.php'; ?>
     <?php include __DIR__ . '/../layouts/head/head_css.php'; ?>
+
 </head>
 <body class="vh-100">
     <div class="authincation h-100">
@@ -14,7 +15,9 @@
                             <div class="col-xl-12">
                                 <div class="auth-form">
                                     <div class="text-center mb-3">
-                                        <a href="index.php"><img src="<?php echo BASE_URL; ?>/assets/images/logo-full.png" alt=""></a>
+                                        <a href="index.php">
+                                            <img src="<?php echo BASE_URL; ?>/assets/images/logo-full.png" alt="Logo" class="img-fluid" style="max-height: 160px; width: auto;">
+                                        </a>
                                     </div>
                                     <h4 class="text-center mb-4">Login</h4>
                                     
@@ -34,8 +37,20 @@
                                                 </span>
                                             </div>
                                         </div>
+                                        <style>
+                                        .btn-custom-red {
+                                            background-color: #d9383a !important;
+                                            border-color: #d9383a !important;
+                                            color: #ffffff !important;
+                                        }
+                                        .btn-custom-red:hover {
+                                            background-color: #b82d2f !important; /* Tono un poco más oscuro al pasar el cursor */
+                                            border-color: #b82d2f !important;
+                                        }
+                                        </style>
+
                                         <div class="text-center">
-                                            <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+                                            <button type="submit" class="btn btn-custom-red btn-block">Ingresar</button>
                                         </div>
                                     </form>
 

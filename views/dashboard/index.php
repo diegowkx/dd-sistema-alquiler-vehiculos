@@ -3,28 +3,21 @@
 <head>
     <?php include __DIR__ . '/../layouts/head/head_meta.php'; ?>
     <?php include __DIR__ . '/../layouts/head/head_css.php'; ?>
+    
+    
 </head>
 <body>
 
-    <!-- Preloader start -->
-    <?php include __DIR__ . '/../layouts/preloader.php'; ?>
-    <!-- Preloader end -->
-
-    <!-- Main wrapper start -->
     <div id="main-wrapper">
 
         <?php include __DIR__ . '/../layouts/topbar.php'; ?>
-
-        <!-- Sidebar start -->
         <?php include __DIR__ . '/../layouts/sidebar.php'; ?>
-        <!-- Sidebar end -->
         
-        <!-- Content body start -->
         <div class="content-body">
             <div class="container-fluid">
                 <!-- Header -->
                 <div class="mb-sm-4 d-flex flex-wrap align-items-center text-head">
-                    <h2 class="mb-3 me-auto">Dashboard Alquiler de Autos</h2>
+                    <h2 class="mb-3 me-auto">Panel de Control Gerencial - Rent a Car</h2>
                     <div>
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript:void(0)">Inicio</a></li>
@@ -38,7 +31,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3 py-3">
-                                <h5 class="mb-0 fw-bold"><i class="fas fa-filter me-2" style="color: #d9383a;"></i>Filtro de Estadías por Fecha de Alquiler</h5>
+                                <h5 class="mb-0 fw-bold"><i class="fas fa-filter me-2" style="color: #d9383a;"></i>Filtro Rango de Fechas</h5>
                                 <div class="d-flex flex-wrap align-items-center gap-2">
                                     <input type="date" id="fecha_inicio" class="form-control w-auto shadow-none border-secondary" value="<?php echo date('Y-m-d'); ?>">
                                     <span class="fw-bold">a</span>
@@ -54,24 +47,22 @@
 
                 <!-- CARDS DE RESUMEN DE ALQUILER -->
                 <div class="row">
-                    <!-- CARD 1: TOTAL AUTOS ALQUILADOS -->
                     <div class="col-xl-6 col-md-6 mb-4">
                         <div class="card shadow-sm" style="border: 2px solid #d9383a !important; border-radius: 18px;">
                             <div class="card-body">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div>
-                                        <span class="text-muted fw-bold">TOTAL AUTOS ALQUILADOS</span>
+                                        <span class="text-muted fw-bold">TOTAL CONTRATOS REGISTRADOS</span>
                                         <h2 class="mt-2 mb-0 fw-bold" id="lbl_total_ventas" style="color: #d9383a;">0</h2>
                                     </div>
                                     <div class="p-3 rounded-circle" style="background-color: #fce8e8;">
-                                        <i class="fas fa-car fs-1" style="color: #d9383a;"></i>
+                                        <i class="fas fa-file-contract fs-1" style="color: #d9383a;"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CARD 2: INGRESO TOTAL RECAUDADO -->
                     <div class="col-xl-6 col-md-6 mb-4">
                         <div class="card shadow-sm" style="border: 2px solid #28a745 !important; border-radius: 18px;">
                             <div class="card-body">
@@ -81,7 +72,7 @@
                                         <h2 class="mt-2 mb-0 fw-bold text-success" id="lbl_ingreso_total">S/ 0.00</h2>
                                     </div>
                                     <div class="bg-soft-success p-3 rounded-circle">
-                                        <i class="fas fa-cash-register fs-1 text-success"></i>
+                                        <i class="fas fa-hand-holding-usd fs-1 text-success"></i>
                                     </div>
                                 </div>
                             </div>
@@ -89,12 +80,91 @@
                     </div>
                 </div>
 
-                <!-- TABLA DE HISTORIAL DE IPs -->
+                <!-- TABLA 1: OPERACIONES DEL DÍA (ENTREGAS Y DEVOLUCIONES) -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header border-0 pb-0">
+                                <h4 class="card-title fw-bold"><i class="fas fa-calendar-check me-2" style="color: #d9383a;"></i>Próximas Entregas y Devoluciones de Vehículos</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="datatable_operaciones" class="table table-striped custom-table w-100">
+                                        <thead>
+                                            <tr>
+                                                <th>N° Contrato</th>
+                                                <th>Cliente</th>
+                                                <th>Vehículo / Placa</th>
+                                                <th>Tipo Operación</th>
+                                                <th>Fecha / Hora Prog.</th>
+                                                <th>Estado Contrato</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLA 2 Y TABLA 3 EN DOS COLUMNAS -->
+                <div class="row mb-4">
+                    <!-- TABLA 2: ESTADO DE LA FLOTA -->
+                    <div class="col-xl-7 col-lg-12 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header border-0 pb-0">
+                                <h4 class="card-title fw-bold"><i class="fas fa-car me-2" style="color: #d9383a;"></i>Disponibilidad de Flota</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="datatable_flota" class="table table-striped custom-table w-100">
+                                        <thead>
+                                            <tr>
+                                                <th>Placa</th>
+                                                <th>Vehículo</th>
+                                                <th>Tarifa/Día</th>
+                                                <th>Estado</th>
+                                                <th>Cliente Actual</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TABLA 3: TOP CLIENTES -->
+                    <div class="col-xl-5 col-lg-12 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header border-0 pb-0">
+                                <h4 class="card-title fw-bold"><i class="fas fa-users me-2" style="color: #d9383a;"></i>Clientes Recurrentes</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="datatable_top_clientes" class="table table-striped custom-table w-100">
+                                        <thead>
+                                            <tr>
+                                                <th>Cliente</th>
+                                                <th>N° Alquileres</th>
+                                                <th>Monto Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLA 4: HISTORIAL DE IPs -->
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header border-0 pb-0">
-                                <h4 class="card-title fw-bold">Historial de Accesos e IPs Registradas</h4>
+                                <h4 class="card-title fw-bold"><i class="fas fa-user-shield me-2" style="color: #d9383a;"></i>Historial de Auditoría e IPs de Acceso</h4>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -119,7 +189,6 @@
 
             </div>
         </div>
-        <!-- Content body end -->
 
         <!-- MODAL DETALLE DE IP -->
         <div class="modal fade" id="modalIpDetalle" tabindex="-1" aria-hidden="true">
@@ -161,14 +230,10 @@
             </div>
         </div>
 
-        <!-- Footer start -->
         <?php include __DIR__ . '/../layouts/footer.php'; ?>
-        <!-- Footer end -->
 
     </div>
-    <!-- Main wrapper end -->
 
-    <!-- Scripts -->
     <?php include __DIR__ . '/../layouts/scripts.php'; ?>
     <script src="<?php echo BASE_URL; ?>/views/dashboard/dashboard.js"></script>
 </body>

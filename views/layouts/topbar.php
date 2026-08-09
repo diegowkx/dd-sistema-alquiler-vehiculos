@@ -1,10 +1,12 @@
 <!--**********************************
     Nav header start
 ***********************************-->
-<div class="nav-header">
-    <a href="index.php" class="brand-logo">
-        <img src="<?php echo BASE_URL; ?>/assets/images/logo-image.png" class="logo-abbr" alt="Logo">
-        <img src="<?php echo BASE_URL; ?>/assets/images/logo-word.png" class="brand-title" alt="Lezato">
+<div class="nav-header d-flex align-items-center justify-content-between px-3">
+    <a href="index.php" class="brand-logo d-flex align-items-center justify-content-center flex-grow-1 overflow-hidden" style="max-height: 100%; padding: 5px;">
+        <img src="<?php echo BASE_URL; ?>/assets/images/logo-full.png" 
+             alt="GestCar Core" 
+             class="img-fluid" 
+             style="max-height: 100%; max-width: 100%; object-fit: contain; width: auto; height: auto;">
     </a>
     <div class="nav-control">
         <div class="hamburger">

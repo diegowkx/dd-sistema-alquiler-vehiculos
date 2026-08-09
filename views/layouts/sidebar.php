@@ -9,23 +9,26 @@
             display: flex !important;
             align-items: center !important;
             padding: 10px 16px !important;
+            position: relative !important;
+            overflow: hidden !important; /* Evita que el fondo circular/sombra se salga del sidebar */
         }
 
-        /* Estilo base para el contenedor del icono (MÁS GRANDE) */
+        /* Estilo base para el contenedor del icono */
         .deznav .metismenu li > a i {
             color: #7e7e7e !important;
             background: transparent !important;
             border: 2px solid transparent !important;
             border-radius: 50% !important;
-            width: 52px !important;            /* Diámetro del círculo */
-            height: 52px !important;           /* Diámetro del círculo */
-            min-width: 52px !important;        /* Evita que se deforme */
+            width: 42px !important;            /* Reducido a 42px para evitar el desborde en mini-sidebar */
+            height: 42px !important;           
+            min-width: 42px !important;        
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            font-size: 24px !important;        /* Tamaño del icono */
+            font-size: 18px !important;        /* Ajuste de tamaño proporcional */
             margin-right: 14px !important;
             box-shadow: none !important;
+            flex-shrink: 0 !important;
         }
 
         /* Forzar el tamaño del vector/glifo de FontAwesome */
@@ -33,16 +36,16 @@
             display: inline-block !important;
             opacity: 1 !important;
             visibility: visible !important;
-            font-size: 24px !important;
+            font-size: 18px !important;
         }
 
-        /* 2. ESTADO HOVER / CLICK (Cápsula blanca con sombra, texto e icono rojo) */
+        /* 2. ESTADO HOVER / CLICK */
         .deznav .metismenu li:not(.mm-active) > a:hover,
         .deznav .metismenu li:not(.mm-active) > a:focus,
         .deznav .metismenu li:not(.mm-active) > a:active {
             background-color: #ffffff !important;
             color: #d9383a !important;
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.07) !important;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08) !important;
             border-radius: 40px !important;
         }
 
@@ -61,11 +64,12 @@
             border: 2px solid #d9383a !important;
         }
 
-        /* 3. ESTADO ACTIVO SELECCIONADO (Pastilla roja suave #fce8e8) */
+        /* 3. ESTADO ACTIVO SELECCIONADO */
         .deznav .metismenu li.mm-active > a {
             background-color: #fce8e8 !important;
             color: #d9383a !important;
             border-radius: 40px !important;
+            box-shadow: none !important;
         }
 
         .deznav .metismenu li.mm-active > a .nav-text {
@@ -79,11 +83,26 @@
             border: 2px solid #d9383a !important;
         }
 
-        /* 4. BLOQUEAR CAPAS Y PSEUDOELEMENTOS NATIVOS DE LA PLANTILLA */
+        /* 4. AJUSTE ESPECÍFICO PARA SIDEBAR COLAPSADO / ICON-HOVER */
+        [data-sidebar-style="compact"] .deznav .metismenu li > a,
+        [data-sidebar-style="mini"] .deznav .metismenu li > a,
+        [data-sidebar-style="icon-hover"] .deznav .metismenu li > a {
+            padding: 10px 0 !important;
+            justify-content: center !important;
+        }
+
+        [data-sidebar-style="compact"] .deznav .metismenu li > a i,
+        [data-sidebar-style="mini"] .deznav .metismenu li > a i,
+        [data-sidebar-style="icon-hover"] .deznav .metismenu li > a i {
+            margin-right: 0 !important;
+        }
+
+        /* 5. ELIMINAR PSEUDOELEMENTOS NATIVOS DE LA PLANTILLA */
         .deznav .metismenu a::before,
-        .deznav .metismenu a::after {
-            background-color: transparent !important;
-            background: none !important;
+        .deznav .metismenu a::after,
+        .deznav .metismenu li::before,
+        .deznav .metismenu li::after {
+            content: none !important;
             display: none !important;
         }
     </style>
