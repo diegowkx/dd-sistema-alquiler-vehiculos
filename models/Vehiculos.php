@@ -38,15 +38,27 @@ class Vehiculos {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getAllDisponibles(): array {
+    public function getAllDisponibles(): array
+    {
         $stmt = $this->pdo->query("
-            SELECT v.placa, v.tipo_nombre, v.marca, v.modelo, v.anio, v.color, v.kilometraje,
-                   t.precio_base_dia
+            SELECT 
+                v.placa,
+                v.tipo_nombre,
+                v.marca,
+                v.modelo,
+                v.anio,
+                v.color,
+                v.kilometraje,
+                v.observaciones,
+                t.precio_base_dia
             FROM vehiculos v
-            INNER JOIN tipos_vehiculo t ON UPPER(TRIM(v.tipo_nombre)) = UPPER(TRIM(t.nombre))
-            WHERE v.activo = 1 AND v.estado_disponibilidad = 'DISPONIBLE'
+            INNER JOIN tipos_vehiculo t 
+                ON UPPER(TRIM(v.tipo_nombre)) = UPPER(TRIM(t.nombre))
+            WHERE v.activo = 1 
+            AND v.estado_disponibilidad = 'DISPONIBLE'
             ORDER BY v.marca ASC, v.modelo ASC
         ");
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
